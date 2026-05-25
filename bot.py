@@ -193,13 +193,26 @@ async def resumo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     conn.close()
 
 
-# ==================================
-# MAIN
-# ==================================
+from flask import Flask
+import threading
+
+web_app = Flask(__name__)
+
+@web_app.route("/")
+def home():
+    return "Bot online"
+
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    web_app.run(host="0.0.0.0", port=port)
+
 
 def main():
 
     criar_banco()
+
+    threading.Thread(target=run_web).start()
 
     app = ApplicationBuilder().token(TOKEN).build()
 
