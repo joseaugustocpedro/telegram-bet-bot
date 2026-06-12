@@ -41,7 +41,24 @@ def criar_banco():
         lucro REAL
     )
     """)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS resumo_base (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    bets_base INTEGER NOT NULL DEFAULT 0,
+    apostado_base REAL NOT NULL DEFAULT 0,
+    lucro_base REAL NOT NULL DEFAULT 0
+)
+""")
 
+cursor.execute("""
+INSERT OR IGNORE INTO resumo_base (
+    id,
+    bets_base,
+    apostado_base,
+    lucro_base
+)
+VALUES (1, 0, 0, 0)
+""")
     conn.commit()
 
     conn.close()
@@ -154,11 +171,58 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ==================================
 # RESUMO
 # ==================================
+async def setresumo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    try:
+        mensagem = update.message.text.replace("/setresumo", "").strip()
+
+        partes = [p.strip() for p in mensagem.split("|")]
+
+        if len(partes) != 3:
+            await update.message.reply_text(
+                "Formato inválido.\n\nUse:\n"
+                "/setresumo 90 | 3413.93 | 109.60"
+            )
+            return
+
+        bets_base = int(partes[0])
+        apostado_base = float(partes[1].replace(",", "."))
+        lucro_base = float(partes[2].replace(",", "."))
+
+        conn = conectar()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+        UPDATE resumo_base
+        SET
+            bets_base = ?,
+            apostado_base = ?,
+            lucro_base = ?
+        WHERE id = 1
+        """, (
+            bets_base,
+            apostado_base,
+            lucro_base
+        ))
+
+        conn.commit()
+        conn.close()
+
+        await update.message.reply_text(
+            f"✅ Histórico base salvo!\n\n"
+            f"🧾 Bets antigas: {bets_base}\n"
+            f"💰 Apostado antigo: R$ {apostado_base:.2f}\n"
+            f"📈 Lucro antigo: R$ {lucro_base:.2f}"
+        )
+
+    except Exception as erro:
+        await update.message.reply_text(
+            f"Erro ao salvar resumo base:\n{erro}"
+        )
 
 async def resumo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     conn = conectar()
-
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -169,7 +233,24 @@ async def resumo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     FROM apostas
     """)
 
-    total, apostado, lucro = cursor.fetchone()
+    novas_bets, novo_apostado, novo_lucro = cursor.fetchone()
+
+    cursor.execute("""
+    SELECT
+        bets_base,
+        apostado_base,
+        lucro_base
+    FROM resumo_base
+    WHERE id = 1
+    """)
+
+    bets_base, apostado_base, lucro_base = cursor.fetchone()
+
+    conn.close()
+
+    total = bets_base + novas_bets
+    apostado = apostado_base + novo_apostado
+    lucro = lucro_base + novo_lucro
 
     roi = (
         lucro / apostado * 100
@@ -189,7 +270,6 @@ async def resumo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 '''
 
     await update.message.reply_text(texto)
-
     conn.close()
 
 
@@ -219,6 +299,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("add", add))
     app.add_handler(CommandHandler("resumo", resumo))
+    app.add_handler(CommandHandler("setresumo", setresumo))
 
     print("BOT ONLINE")
 
