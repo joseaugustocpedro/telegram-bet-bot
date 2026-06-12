@@ -59,9 +59,8 @@ INSERT OR IGNORE INTO resumo_base (
 )
 VALUES (1, 0, 0, 0)
 """)
-    conn.commit()
-
-    conn.close()
+conn.commit()
+conn.close()
 
 
 # ==================================
