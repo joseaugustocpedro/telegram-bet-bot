@@ -25,7 +25,6 @@ def conectar():
 def criar_banco():
 
     conn = conectar()
-
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -41,7 +40,8 @@ def criar_banco():
         lucro REAL
     )
     """)
-cursor.execute("""
+
+    cursor.execute("""
     CREATE TABLE IF NOT EXISTS resumo_base (
         id INTEGER PRIMARY KEY CHECK (id = 1),
         bets_base INTEGER NOT NULL DEFAULT 0,
@@ -50,7 +50,7 @@ cursor.execute("""
     )
     """)
 
-cursor.execute("""
+    cursor.execute("""
     INSERT OR IGNORE INTO resumo_base (
         id,
         bets_base,
@@ -59,9 +59,9 @@ cursor.execute("""
     )
     VALUES (1, 0, 0, 0)
     """)
-conn.commit()
-conn.close()
 
+    conn.commit()
+    conn.close()
 
 # ==================================
 # LUCRO
