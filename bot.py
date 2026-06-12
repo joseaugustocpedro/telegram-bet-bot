@@ -42,23 +42,23 @@ def criar_banco():
     )
     """)
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS resumo_base (
-    id INTEGER PRIMARY KEY CHECK (id = 1),
-    bets_base INTEGER NOT NULL DEFAULT 0,
-    apostado_base REAL NOT NULL DEFAULT 0,
-    lucro_base REAL NOT NULL DEFAULT 0
-)
-""")
+    CREATE TABLE IF NOT EXISTS resumo_base (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        bets_base INTEGER NOT NULL DEFAULT 0,
+        apostado_base REAL NOT NULL DEFAULT 0,
+        lucro_base REAL NOT NULL DEFAULT 0
+    )
+    """)
 
 cursor.execute("""
-INSERT OR IGNORE INTO resumo_base (
-    id,
-    bets_base,
-    apostado_base,
-    lucro_base
-)
-VALUES (1, 0, 0, 0)
-""")
+    INSERT OR IGNORE INTO resumo_base (
+        id,
+        bets_base,
+        apostado_base,
+        lucro_base
+    )
+    VALUES (1, 0, 0, 0)
+    """)
 conn.commit()
 conn.close()
 
