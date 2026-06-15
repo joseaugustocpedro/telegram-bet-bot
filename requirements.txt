@@ -1,2 +1,5 @@
-python-telegram-bot
-flask
+python-telegram-bot[job-queue]>=22,<23
+flask>=3,<4
+psycopg2-binary>=2.9,<3
+matplotlib>=3.9,<4
+tzdata>=2025.2
