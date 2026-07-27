@@ -1,48 +1,66 @@
-from __future__ import annotations
-
-import logging
-
-from flask import Blueprint, jsonify, make_response, render_template, request
-
-try:
-    from .database import dashboard_data, init_db
-    from .security import verify_dashboard_token
-except ImportError:
-    from database import dashboard_data, init_db
-    from security import verify_dashboard_token
-
-logger = logging.getLogger("bank-dashboard")
-dashboard_bp = Blueprint("bank_dashboard", __name__, template_folder="templates")
-
-
-@dashboard_bp.get("/dashboard/<token>")
-def dashboard_page(token: str):
-    try:
-        verify_dashboard_token(token)
-    except ValueError as exc:
-        return render_template("dashboard.html", token="", initial_error=str(exc)), 401
-    response = make_response(render_template("dashboard.html", token=token, initial_error=""))
-    response.headers["Cache-Control"] = "no-store, max-age=0"
-    response.headers["X-Frame-Options"] = "SAMEORIGIN"
-    response.headers["Referrer-Policy"] = "no-referrer"
-    return response
-
-
-@dashboard_bp.get("/api/dashboard/<token>")
-def dashboard_api(token: str):
-    try:
-        identity = verify_dashboard_token(token)
-        period = request.args.get("period", "30")
-        payload = dashboard_data(identity.chat_id, period)
-        response = jsonify(payload)
-        response.headers["Cache-Control"] = "no-store, max-age=0"
-        return response
-    except ValueError as exc:
-        return jsonify({"error": str(exc)}), 401
-    except Exception:
-        logger.exception("Falha ao carregar dashboard")
-        return jsonify({"error": "Não foi possível carregar o dashboard agora."}), 500
-
-
-def initialize_dashboard_database() -> None:
-    init_db()
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071633">
+  <title>Dashboard da Banca</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
+  <style>
+    :root{--nav:#071633;--nav2:#0d234b;--bg:#f3f8fa;--card:#fff;--text:#101828;--muted:#667085;--line:#dce6eb;--green:#08a64a;--red:#d92d20;--amber:#dc8b00;--shadow:0 8px 28px rgba(7,22,51,.08)}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    button,select{font:inherit}.layout{min-height:100vh;display:grid;grid-template-columns:250px 1fr}.sidebar{background:var(--nav);color:white;padding:24px 18px;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:800}.brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#15d16b,#0c72ff);font-size:22px}.brand small{display:block;color:#a9bad4;font-size:12px;font-weight:500}.nav{margin-top:34px;display:grid;gap:8px}.nav a{padding:12px 14px;border-radius:12px;color:#c8d5e8;text-decoration:none}.nav a.active,.nav a:hover{background:var(--nav2);color:#fff}.side-note{position:absolute;bottom:22px;left:18px;right:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:14px;color:#c8d5e8;font-size:12px}
+    main{padding:28px;min-width:0}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.topbar h1{font-size:30px;margin:0 0 4px}.muted{color:var(--muted)}.controls{display:flex;gap:8px;align-items:center}.control{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:var(--shadow)}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);min-width:0}.metric-label{color:var(--muted);font-weight:600}.metric-value{font-size:27px;font-weight:850;margin-top:14px;letter-spacing:-.02em}.positive{color:var(--green)}.negative{color:var(--red)}.metric-foot{margin-top:4px;color:var(--muted);font-size:12px}.wide{grid-column:span 2}.full{grid-column:1/-1}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.section-title h2{font-size:17px;margin:0}.chart-wrap{height:280px;position:relative}.chart-wrap svg{width:100%;height:100%;overflow:visible}.axis{stroke:#dce6eb;stroke-width:1}.chart-line{fill:none;stroke:#087443;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.chart-area{fill:url(#areaGradient)}.chart-empty{display:grid;place-items:center;height:100%;color:var(--muted)}
+    .bar-list{display:grid;gap:13px}.bar-row{display:grid;grid-template-columns:minmax(90px,1.2fr) 2fr auto;gap:10px;align-items:center}.bar-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bar-track{height:9px;background:#edf2f4;border-radius:999px;overflow:hidden}.bar-fill{height:100%;border-radius:999px;background:var(--green)}.bar-fill.neg{background:var(--red)}.bar-value{font-variant-numeric:tabular-nums;font-weight:700}
+    .insights{display:grid;gap:10px}.insight{border-left:4px solid #64748b;background:#f8fafc;border-radius:10px;padding:12px}.insight.success{border-color:var(--green)}.insight.warning{border-color:var(--amber)}.insight.danger{border-color:var(--red)}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line)}th{font-size:12px;color:var(--muted);background:#f8fbfc;position:sticky;top:0}tr:last-child td{border-bottom:0}.pill{display:inline-flex;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800;background:#eef2f6}.pill.GREEN,.pill.HALF_GREEN{background:#dcfae6;color:#067647}.pill.RED,.pill.HALF_RED{background:#fee4e2;color:#b42318}.pill.PENDING{background:#fff3d6;color:#a15c00}.pill.VOID{background:#eef2f6;color:#475467}
+    .loading{position:fixed;inset:0;background:rgba(243,248,250,.84);display:grid;place-items:center;z-index:20}.spinner{width:44px;height:44px;border:4px solid #dbe5ea;border-top-color:#087443;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.error{max-width:620px;margin:80px auto;background:#fff;border:1px solid #fecaca;padding:24px;border-radius:18px;color:#991b1b}.hidden{display:none!important}
+    @media(max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:84px 1fr}.sidebar{padding:20px 12px}.brand span,.nav span,.side-note{display:none}.brand{justify-content:center}.nav a{text-align:center;font-size:20px}}
+    @media(max-width:680px){.layout{display:block}.sidebar{height:auto;position:static;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}.nav{margin:0;display:flex}.nav a:not(.active){display:none}.side-note{display:none}.brand span{display:block}.brand-mark{width:36px;height:36px}.topbar{display:block}.controls{margin-top:12px}.grid{grid-template-columns:1fr}.wide,.full{grid-column:span 1}main{padding:16px}.metric-value{font-size:24px}.chart-wrap{height:230px}}
+  </style>
+</head>
+<body>
+  {% if initial_error %}<div class="error"><h2>Link indisponível</h2><p>{{ initial_error }}</p><p>Volte ao Telegram e use <strong>/dashboard</strong> para gerar um novo link.</p></div>{% else %}
+  <div id="loading" class="loading"><div class="spinner" aria-label="Carregando"></div></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">📈</div><span>Bankroll Pro<small>Gestor inteligente</small></span></div>
+      <nav class="nav"><a class="active" href="#">▦ <span>Dashboard</span></a><a href="#historico">☷ <span>Histórico</span></a><a href="#analises">⌁ <span>Análises</span></a></nav>
+      <div class="side-note">Leve para o Render: gráficos são desenhados no seu aparelho, sem Matplotlib no servidor.</div>
+    </aside>
+    <main>
+      <header class="topbar"><div><h1>Dashboard</h1><div class="muted" id="welcome">Resumo das suas apostas</div></div><div class="controls"><select id="period" class="control"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option><option value="all">Todo período</option></select><button id="refresh" class="control">↻ Atualizar</button></div></header>
+      <section class="grid">
+        <article class="card"><div class="metric-label">Apostas concluídas</div><div id="concluded" class="metric-value">0</div><div id="pending" class="metric-foot">0 pendentes</div></article>
+        <article class="card"><div class="metric-label">Total investido</div><div id="invested" class="metric-value">R$ 0,00</div><div class="metric-foot">Stake liquidada no período</div></article>
+        <article class="card"><div class="metric-label">Lucro líquido</div><div id="profit" class="metric-value">R$ 0,00</div><div class="metric-foot">Resultado do período</div></article>
+        <article class="card"><div class="metric-label">ROI</div><div id="roi" class="metric-value">0,00%</div><div class="metric-foot">Retorno sobre investimento</div></article>
+        <article class="card"><div class="metric-label">Saldo da banca</div><div id="bankroll" class="metric-value positive">R$ 0,00</div><div class="metric-foot">Saldo atual consolidado</div></article>
+        <article class="card"><div class="metric-label">Taxa de acerto</div><div id="winRate" class="metric-value">0,00%</div><div id="record" class="metric-foot">0 greens • 0 reds</div></article>
+        <article class="card"><div class="metric-label">Exposição aberta</div><div id="exposure" class="metric-value">R$ 0,00</div><div id="exposurePct" class="metric-foot">0,00% da banca</div></article>
+        <article class="card"><div class="metric-label">Drawdown máximo</div><div id="drawdown" class="metric-value">R$ 0,00</div><div id="streak" class="metric-foot">Sem sequência atual</div></article>
+        <article class="card wide" id="analises"><div class="section-title"><h2>Evolução da banca</h2><span class="muted" id="generated"></span></div><div id="chart" class="chart-wrap"></div></article>
+        <article class="card wide"><div class="section-title"><h2>Lucro por esporte</h2></div><div id="sports" class="bar-list"></div></article>
+        <article class="card wide"><div class="section-title"><h2>Lucro por tipster</h2></div><div id="tipsters" class="bar-list"></div></article>
+        <article class="card wide"><div class="section-title"><h2>Insights automáticos</h2></div><div id="insights" class="insights"></div></article>
+        <article class="card full" id="historico"><div class="section-title"><h2>Últimas apostas</h2><span class="muted">Atualização sob demanda</span></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Data</th><th>Evento</th><th>Mercado</th><th>Odd</th><th>Stake</th><th>Status</th><th>Resultado</th></tr></thead><tbody id="bets"></tbody></table></div></article>
+      </section>
+    </main>
+  </div>
+  <script>
+    const TOKEN={{ token|tojson }}; const $=id=>document.getElementById(id); let DATA=null;
+    const tg=window.Telegram?.WebApp; if(tg){tg.ready();tg.expand();}
+    function money(v,c='R$'){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:c==='R$'?'BRL':'BRL'}).format(Number(v||0)).replace('R$',c)}
+    function number(v,d=2){return Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})}
+    function signed(el,value,suffix=''){el.textContent=(suffix?number(value)+suffix:money(value,DATA.profile.currency));el.classList.toggle('positive',Number(value)>0);el.classList.toggle('negative',Number(value)<0)}
+    function bars(target,items){const root=$(target);root.innerHTML='';if(!items.length){root.innerHTML='<div class="muted">Sem dados suficientes.</div>';return}const max=Math.max(...items.map(x=>Math.abs(x.profit)),1);items.forEach(x=>{const row=document.createElement('div');row.className='bar-row';row.innerHTML=`<div class="bar-label" title="${escapeHtml(x.label)}">${escapeHtml(x.label)}</div><div class="bar-track"><div class="bar-fill ${x.profit<0?'neg':''}" style="width:${Math.max(3,Math.abs(x.profit)/max*100)}%"></div></div><div class="bar-value ${x.profit>=0?'positive':'negative'}">${money(x.profit,DATA.profile.currency)}</div>`;root.appendChild(row)})}
+    function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+    function chart(series){const root=$('chart');if(!series.length){root.innerHTML='<div class="chart-empty">Ainda não há apostas liquidadas neste período.</div>';return}const w=900,h=250,p=20;const vals=series.map(x=>x.balance),min=Math.min(...vals),max=Math.max(...vals),span=Math.max(max-min,1);const pts=vals.map((v,i)=>`${p+(i/(Math.max(vals.length-1,1)))*(w-2*p)},${h-p-((v-min)/span)*(h-2*p)}`).join(' ');const area=`${p},${h-p} ${pts} ${w-p},${h-p}`;root.innerHTML=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><defs><linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#08a64a" stop-opacity=".28"/><stop offset="100%" stop-color="#08a64a" stop-opacity=".02"/></linearGradient></defs><line class="axis" x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}"/><polygon class="chart-area" points="${area}"/><polyline class="chart-line" points="${pts}"/></svg>`}
+    function render(d){DATA=d;const s=d.summary;$('welcome').textContent=`Bem-vindo, ${d.profile.display_name}. Aqui está o resumo das suas apostas.`;$('concluded').textContent=s.concluded;$('pending').textContent=`${s.pending} pendente(s)`;$('invested').textContent=money(s.invested,d.profile.currency);signed($('profit'),s.profit);signed($('roi'),s.roi,'%');$('bankroll').textContent=money(s.current_bankroll,d.profile.currency);$('winRate').textContent=number(s.win_rate)+'%';$('record').textContent=`${s.greens} greens • ${s.reds} reds`;$('exposure').textContent=money(s.open_exposure,d.profile.currency);$('exposurePct').textContent=`${number(s.open_exposure_pct)}% da banca`;$('drawdown').textContent=money(s.max_drawdown,d.profile.currency);$('drawdown').classList.toggle('negative',s.max_drawdown>0);$('streak').textContent=s.streak.count?`${s.streak.kind==='WIN'?'Sequência positiva':'Sequência negativa'}: ${s.streak.count}`:'Sem sequência atual';$('generated').textContent=new Date(d.generated_at).toLocaleString('pt-BR');chart(d.series);bars('sports',d.breakdowns.sports);bars('tipsters',d.breakdowns.tipsters);$('insights').innerHTML=d.insights.map(x=>`<div class="insight ${x.level}">${escapeHtml(x.text)}</div>`).join('');$('bets').innerHTML=d.recent_bets.map(x=>`<tr><td>${x.id}</td><td>${x.date}</td><td><strong>${escapeHtml(x.event)}</strong><br><span class="muted">${escapeHtml(x.sport)}</span></td><td>${escapeHtml(x.market)}</td><td>${number(x.odds)}</td><td>${money(x.stake,d.profile.currency)}</td><td><span class="pill ${x.status}">${x.status}</span></td><td class="${x.profit>0?'positive':x.profit<0?'negative':''}">${money(x.profit,d.profile.currency)}</td></tr>`).join('')||'<tr><td colspan="8" class="muted">Nenhuma aposta registrada.</td></tr>'}
+    async function load(){ $('loading').classList.remove('hidden');try{const r=await fetch(`/api/dashboard/${TOKEN}?period=${$('period').value}`,{cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.error||'Falha ao carregar');render(d)}catch(e){document.querySelector('main').innerHTML=`<div class="error"><h2>Não foi possível carregar</h2><p>${escapeHtml(e.message)}</p><p>Gere um novo link com /dashboard.</p></div>`}finally{$('loading').classList.add('hidden')}}
+    $('period').addEventListener('change',load);$('refresh').addEventListener('click',load);load();
+  </script>
+  {% endif %}
+</body>
+</html>
