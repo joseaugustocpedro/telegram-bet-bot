@@ -8,115 +8,40 @@
   <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
   <style>
     :root{
-      --nav:#071633;--nav-2:#0d234b;--bg:#f3f7f9;--card:#fff;--card-soft:#f8fbfc;
-      --text:#101828;--muted:#667085;--line:#dbe5ea;--green:#079447;--green-2:#10b85c;
-      --red:#d92d20;--amber:#d88900;--blue:#1570ef;--purple:#6941c6;
-      --shadow:0 10px 32px rgba(7,22,51,.07);--radius:18px;
+      --nav:#071633;--nav2:#0d234b;--bg:#f3f7f9;--card:#fff;--soft:#f8fbfc;
+      --text:#101828;--muted:#667085;--line:#dbe5ea;--green:#079447;--green2:#16b364;
+      --red:#d92d20;--amber:#dc8b00;--blue:#1570ef;--purple:#6941c6;
+      --shadow:0 10px 34px rgba(7,22,51,.07);--radius:18px;
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
     body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
-    button,input,select{font:inherit}
-    button{cursor:pointer}
-    .hidden{display:none!important}
+    button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
     .layout{min-height:100vh;display:grid;grid-template-columns:248px minmax(0,1fr)}
     .sidebar{position:sticky;top:0;height:100vh;padding:24px 18px;background:linear-gradient(180deg,var(--nav),#061127);color:#fff;overflow:hidden}
-    .brand{display:flex;align-items:center;gap:12px;font-size:19px;font-weight:850;letter-spacing:-.02em}
-    .brand-mark{display:grid;place-items:center;width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,#1cda74,#1877f2);box-shadow:0 8px 22px rgba(24,119,242,.26);font-size:21px}
-    .brand small{display:block;color:#a8bbd7;font-size:11px;font-weight:550;letter-spacing:0}
-    .nav{display:grid;gap:7px;margin-top:32px}
-    .nav a{display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;color:#cbd8e9;text-decoration:none;font-weight:650}
-    .nav a:hover,.nav a.active{background:var(--nav-2);color:#fff}
-    .side-status{position:absolute;left:18px;right:18px;bottom:20px;padding:13px;border:1px solid rgba(255,255,255,.11);border-radius:14px;background:rgba(255,255,255,.06);color:#b9c9de;font-size:12px}
-    .side-status strong{display:block;margin-bottom:3px;color:#fff}
-    main{min-width:0;padding:26px 28px 38px}
-    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
-    h1{margin:0 0 4px;font-size:30px;line-height:1.15;letter-spacing:-.035em}
-    .muted{color:var(--muted)}
-    .top-actions{display:flex;align-items:center;gap:9px}
-    .icon-button,.refresh-button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text);box-shadow:var(--shadow)}
-    .refresh-button{gap:8px;padding:0 14px;font-weight:750}
-    .refresh-button.loading-icon span{animation:spin .8s linear infinite}
-    .period-shell{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px;padding:10px 12px;border:1px solid var(--line);border-radius:15px;background:#fff;box-shadow:var(--shadow)}
-    .period-title{font-weight:750;white-space:nowrap}
-    .periods{display:flex;gap:6px;min-width:0;overflow:auto;scrollbar-width:none}
-    .periods::-webkit-scrollbar{display:none}
-    .period-button{flex:none;border:0;border-radius:10px;padding:8px 12px;background:transparent;color:var(--muted);font-weight:750}
-    .period-button:hover{background:#f1f5f7;color:var(--text)}
-    .period-button.active{background:var(--nav);color:#fff}
-    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
-    .card{min-width:0;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow)}
-    .metric{position:relative;overflow:hidden}
-    .metric::after{content:"";position:absolute;right:-23px;top:-30px;width:92px;height:92px;border-radius:50%;background:var(--accent-soft,#eef4ff)}
-    .metric-head{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .metric-label{color:var(--muted);font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.045em}
-    .metric-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--accent-soft,#eef4ff);color:var(--accent,var(--blue));font-size:17px}
-    .metric-value{position:relative;z-index:1;margin-top:13px;font-size:27px;font-weight:860;letter-spacing:-.035em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .metric-foot{position:relative;z-index:1;display:flex;align-items:center;gap:7px;min-height:21px;margin-top:5px;color:var(--muted);font-size:12px}
-    .trend{display:inline-flex;align-items:center;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:850}
-    .trend.up{background:#dcfae6;color:#067647}.trend.down{background:#fee4e2;color:#b42318}.trend.flat{background:#eef2f6;color:#475467}
-    .positive{color:var(--green)!important}.negative{color:var(--red)!important}.warning{color:var(--amber)!important}
-    .full{grid-column:1/-1}.span-2{grid-column:span 2}.span-3{grid-column:span 3}
-    .quality-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;padding:0;overflow:hidden}
-    .quality-item{padding:15px 17px;border-right:1px solid var(--line)}
-    .quality-item:last-child{border-right:0}
-    .quality-label{color:var(--muted);font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.04em}
-    .quality-value{margin-top:5px;font-size:18px;font-weight:830}
-    .section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
-    .section-head h2{margin:0;font-size:17px;letter-spacing:-.015em}
-    .section-sub{margin-top:2px;color:var(--muted);font-size:12px}
-    .segmented{display:inline-flex;gap:3px;padding:3px;border-radius:11px;background:#eef3f5}
-    .segment{border:0;border-radius:8px;padding:7px 10px;background:transparent;color:var(--muted);font-size:12px;font-weight:800}
-    .segment.active{background:#fff;color:var(--text);box-shadow:0 2px 8px rgba(16,24,40,.08)}
-    .chart-shell{position:relative;height:330px;border:1px solid #edf1f3;border-radius:15px;background:linear-gradient(180deg,#fbfdfd,#fff);overflow:hidden}
-    .chart-shell svg{display:block;width:100%;height:100%}
-    .chart-empty{display:grid;place-items:center;height:100%;padding:24px;color:var(--muted);text-align:center}
-    .chart-tooltip{position:absolute;z-index:4;min-width:145px;padding:10px 11px;border-radius:11px;background:#101828;color:#fff;box-shadow:0 10px 26px rgba(16,24,40,.22);font-size:11px;pointer-events:none;transform:translate(-50%,-110%)}
-    .chart-tooltip strong{display:block;margin:3px 0;font-size:14px}
-    .chart-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:11px}
-    .chart-stat{padding:10px 12px;border-radius:12px;background:var(--card-soft)}
-    .chart-stat span{display:block;color:var(--muted);font-size:11px}.chart-stat strong{display:block;margin-top:2px;font-size:14px}
-    .axis-label{fill:#8793a4;font-size:11px}.grid-line{stroke:#e7edf0;stroke-width:1}.zero-line{stroke:#c5d0d7;stroke-width:1.2;stroke-dasharray:4 4}
-    .balance-line{fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 4px 5px rgba(7,148,71,.15))}
-    .balance-dot{fill:#fff;stroke:var(--green);stroke-width:2}.hover-zone{fill:transparent;cursor:crosshair}
-    .breakdown-tabs{display:flex;gap:4px;overflow:auto;margin-bottom:13px;scrollbar-width:none}.breakdown-tabs::-webkit-scrollbar{display:none}
-    .breakdown-tab{flex:none;border:1px solid var(--line);border-radius:999px;padding:7px 11px;background:#fff;color:var(--muted);font-size:11px;font-weight:800}
-    .breakdown-tab.active{border-color:var(--nav);background:var(--nav);color:#fff}
-    .bar-list{display:grid;gap:12px}
-    .bar-row{display:grid;grid-template-columns:minmax(115px,1.2fr) 2fr minmax(98px,auto);gap:11px;align-items:center}
-    .bar-label{min-width:0}.bar-label strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bar-label small{color:var(--muted)}
-    .bar-track{position:relative;height:10px;border-radius:999px;background:#edf2f4;overflow:hidden}.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#079447,#1bc46b)}.bar-fill.neg{background:linear-gradient(90deg,#d92d20,#f04438)}
-    .bar-value{text-align:right;font-variant-numeric:tabular-nums}.bar-value strong{display:block}.bar-value small{color:var(--muted)}
-    .insights{display:grid;gap:10px}
-    .insight{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:12px;border:1px solid #e6ebef;border-radius:13px;background:#fbfcfd}
-    .insight-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#eef2f6}
-    .insight.success{border-color:#b7ebcb;background:#f4fcf7}.insight.success .insight-icon{background:#dcfae6}
-    .insight.warning{border-color:#f5d7a2;background:#fffbf3}.insight.warning .insight-icon{background:#fff0cf}
-    .insight.danger{border-color:#f5c0bc;background:#fff8f7}.insight.danger .insight-icon{background:#fee4e2}
-    .insight strong{display:block;margin-bottom:2px;font-size:13px}.insight p{margin:0;color:#475467;font-size:12px}
-    .pending-list{display:grid;gap:9px}
-    .pending-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card-soft)}
-    .pending-item strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pending-item small{color:var(--muted)}
-    .pending-amount{text-align:right;font-weight:820}.pending-amount small{display:block;font-weight:500}
-    .risk-bar{height:7px;margin-top:9px;border-radius:999px;background:#edf2f4;overflow:hidden}.risk-fill{height:100%;border-radius:999px;background:var(--green)}.risk-fill.medium{background:var(--amber)}.risk-fill.high{background:var(--red)}
-    .table-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:11px}
-    .search,.filter{min-height:38px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);outline:none}.search{flex:1;min-width:190px;padding:0 12px}.filter{padding:0 10px}
-    .search:focus,.filter:focus{border-color:#84adff;box-shadow:0 0 0 3px rgba(21,112,239,.09)}
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}
-    table{width:100%;min-width:900px;border-collapse:collapse}
-    th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
-    th{position:sticky;top:0;z-index:1;background:#f8fbfc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.035em}
-    tr:last-child td{border-bottom:0}tbody tr:hover{background:#fafcfd}
-    .pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;background:#eef2f6;color:#475467;font-size:10px;font-weight:850}
-    .pill.GREEN,.pill.HALF_GREEN{background:#dcfae6;color:#067647}.pill.RED,.pill.HALF_RED{background:#fee4e2;color:#b42318}.pill.PENDING{background:#fff1d6;color:#9a5b00}.pill.VOID{background:#eef2f6;color:#475467}
-    .loading{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(243,247,249,.87);backdrop-filter:blur(3px)}
-    .loader-card{display:flex;align-items:center;gap:12px;padding:15px 18px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:var(--shadow);font-weight:750}
-    .spinner{width:22px;height:22px;border:3px solid #dce6eb;border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-    .error{max-width:650px;margin:72px auto;padding:24px;border:1px solid #fecaca;border-radius:18px;background:#fff;color:#991b1b}
-    .empty{padding:18px;color:var(--muted);text-align:center}
-    @media(max-width:1180px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.span-3{grid-column:span 2}.quality-strip{grid-template-columns:repeat(3,1fr)}.quality-item:nth-child(3){border-right:0}.quality-item:nth-child(n+4){border-top:1px solid var(--line)}}
-    @media(max-width:850px){.layout{grid-template-columns:80px minmax(0,1fr)}.sidebar{padding:18px 11px}.brand{justify-content:center}.brand span,.nav span,.side-status{display:none}.nav a{justify-content:center;font-size:18px}.nav{margin-top:24px}main{padding:20px}}
-    @media(max-width:650px){.layout{display:block}.sidebar{position:static;display:flex;align-items:center;justify-content:space-between;height:auto;padding:10px 14px}.brand{justify-content:flex-start}.brand span{display:block}.brand-mark{width:36px;height:36px}.nav{display:flex;margin:0}.nav a{display:none}.nav a.active{display:flex;padding:9px 11px}.topbar{align-items:center}.topbar h1{font-size:24px}.top-actions .refresh-label{display:none}.period-shell{display:block;padding:10px}.period-title{display:none}.periods{width:100%}.period-button{padding:8px 11px}.grid{grid-template-columns:1fr}.span-2,.span-3,.full{grid-column:span 1}.quality-strip{grid-template-columns:repeat(2,1fr)}.quality-item{border-right:1px solid var(--line);border-top:1px solid var(--line)}.quality-item:nth-child(1),.quality-item:nth-child(2){border-top:0}.quality-item:nth-child(even){border-right:0}.quality-item:last-child{grid-column:1/-1;border-right:0}.chart-shell{height:285px}.chart-summary{grid-template-columns:1fr}.section-head{align-items:center}.bar-row{grid-template-columns:minmax(100px,1fr) 1.25fr auto;gap:8px}.bar-value small{display:none}main{padding:15px}.card{padding:15px}.metric-value{font-size:25px}}
+    .brand{display:flex;align-items:center;gap:12px;font-size:19px;font-weight:850;letter-spacing:-.02em}.brand-mark{display:grid;place-items:center;width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,#1cda74,#1877f2);box-shadow:0 8px 22px rgba(24,119,242,.26);font-size:21px}.brand small{display:block;color:#a8bbd7;font-size:11px;font-weight:550;letter-spacing:0}
+    .nav{display:grid;gap:7px;margin-top:32px}.nav a{display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;color:#cbd8e9;text-decoration:none;font-weight:650}.nav a:hover,.nav a.active{background:var(--nav2);color:#fff}
+    .side-status{position:absolute;left:18px;right:18px;bottom:20px;padding:13px;border:1px solid rgba(255,255,255,.11);border-radius:14px;background:rgba(255,255,255,.06);color:#b9c9de;font-size:12px}.side-status strong{display:block;margin-bottom:3px;color:#fff}
+    main{min-width:0;padding:26px 28px 38px}.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}h1{margin:0 0 4px;font-size:30px;line-height:1.15;letter-spacing:-.035em}.muted{color:var(--muted)}
+    .top-actions{display:flex;align-items:center;gap:9px}.refresh-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);box-shadow:var(--shadow);font-weight:750}.refresh-button.loading-icon span{animation:spin .8s linear infinite}
+    .period-shell{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px;padding:10px 12px;border:1px solid var(--line);border-radius:15px;background:var(--card);box-shadow:var(--shadow)}.period-title{font-weight:750;white-space:nowrap}.periods{display:flex;gap:6px;min-width:0;overflow:auto;scrollbar-width:none}.periods::-webkit-scrollbar{display:none}.period-button{flex:none;border:0;border-radius:10px;padding:8px 12px;background:transparent;color:var(--muted);font-weight:750}.period-button:hover{background:var(--soft);color:var(--text)}.period-button.active{background:var(--nav);color:#fff}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.card{min-width:0;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow)}.full{grid-column:1/-1}.span-2{grid-column:span 2}
+    .metric{position:relative;overflow:hidden}.metric::after{content:"";position:absolute;right:-24px;top:-31px;width:92px;height:92px;border-radius:50%;background:var(--accent-soft,#eef4ff)}.metric-head{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px}.metric-label{color:var(--muted);font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.045em}.metric-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--accent-soft,#eef4ff);color:var(--accent,var(--blue));font-size:17px}.metric-value{position:relative;z-index:1;margin-top:13px;font-size:27px;font-weight:860;letter-spacing:-.035em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric-foot{position:relative;z-index:1;display:flex;align-items:center;gap:7px;min-height:21px;margin-top:5px;color:var(--muted);font-size:12px}.trend{display:inline-flex;align-items:center;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:850}.trend.up{background:#dcfae6;color:#067647}.trend.down{background:#fee4e2;color:#b42318}.trend.flat{background:#eef2f6;color:#475467}.positive{color:var(--green)!important}.negative{color:var(--red)!important}.warning-text{color:var(--amber)!important}
+    .quality-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;padding:0;overflow:hidden}.quality-item{padding:15px 17px;border-right:1px solid var(--line)}.quality-item:last-child{border-right:0}.quality-label{color:var(--muted);font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.04em}.quality-value{margin-top:5px;font-size:18px;font-weight:830}
+    .section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}.section-head h2{margin:0;font-size:18px;letter-spacing:-.02em}.section-sub{margin-top:2px;color:var(--muted);font-size:12px}.head-badges{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:var(--soft);color:var(--muted);font-size:10px;font-weight:800}.badge.ok{border-color:#b7ebcb;background:#f2fcf6;color:#067647}
+    .segmented{display:inline-flex;gap:3px;padding:3px;border-radius:11px;background:#eef3f5}.segment{border:0;border-radius:8px;padding:7px 10px;background:transparent;color:var(--muted);font-size:12px;font-weight:800;white-space:nowrap}.segment.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(16,24,40,.08)}
+    .reconciliation{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--muted);font-size:12px}.reconciliation strong{color:var(--text)}.reconciliation .equals{font-weight:900;color:var(--green)}
+    .chart-shell{position:relative;height:360px;border:1px solid #e8eef1;border-radius:15px;background:linear-gradient(180deg,#fbfdfd,#fff);overflow:hidden}.chart-shell svg{display:block;width:100%;height:100%}.chart-empty{display:grid;place-items:center;height:100%;padding:24px;color:var(--muted);text-align:center}.chart-tooltip{position:absolute;z-index:5;min-width:185px;max-width:230px;padding:11px 12px;border-radius:12px;background:#101828;color:#fff;box-shadow:0 12px 30px rgba(16,24,40,.26);font-size:11px;pointer-events:none;transform:translate(-50%,-108%)}.chart-tooltip strong{display:block;margin:3px 0 5px;font-size:14px}.chart-tooltip .tooltip-grid{display:grid;grid-template-columns:1fr auto;gap:2px 10px;color:#d0d5dd}.chart-tooltip .tooltip-grid b{color:#fff;text-align:right}.chart-crosshair{stroke:#98a2b3;stroke-width:1;stroke-dasharray:3 4}.axis-label{fill:#8793a4;font-size:11px}.grid-line{stroke:#e7edf0;stroke-width:1}.zero-line{stroke:#98a2b3;stroke-width:1.2;stroke-dasharray:4 4}.chart-line{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.chart-dot{fill:var(--card);stroke-width:2}.transaction-dot{fill:var(--blue);stroke:#fff;stroke-width:2}.hover-zone{fill:transparent;cursor:crosshair}
+    .chart-legend{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:11px}.legend-item{display:inline-flex;align-items:center;gap:6px}.legend-dot{width:9px;height:9px;border-radius:50%;background:var(--green)}.legend-dot.blue{background:var(--blue)}.legend-dot.red{background:var(--red)}
+    .chart-summary{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px;margin-top:11px}.chart-stat{padding:10px 11px;border-radius:12px;background:var(--soft)}.chart-stat span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.035em}.chart-stat strong{display:block;margin-top:3px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chart-note{margin-top:10px;padding:10px 12px;border-left:3px solid var(--blue);border-radius:8px;background:#f5f8ff;color:#475467;font-size:11px}
+    .breakdown-tabs{display:flex;gap:4px;overflow:auto;margin-bottom:13px;scrollbar-width:none}.breakdown-tabs::-webkit-scrollbar{display:none}.breakdown-tab{flex:none;border:1px solid var(--line);border-radius:999px;padding:7px 11px;background:var(--card);color:var(--muted);font-size:11px;font-weight:800}.breakdown-tab.active{border-color:var(--nav);background:var(--nav);color:#fff}.bar-list{display:grid;gap:12px}.bar-row{display:grid;grid-template-columns:minmax(120px,1.15fr) 2fr minmax(110px,auto);gap:11px;align-items:center}.bar-label{min-width:0}.bar-label strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bar-label small{color:var(--muted)}.diverge-track{position:relative;height:12px;border-radius:999px;background:#edf2f4;overflow:hidden}.diverge-track::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:#cfd9df}.diverge-fill{position:absolute;top:1px;bottom:1px;border-radius:999px;background:linear-gradient(90deg,#079447,#1bc46b)}.diverge-fill.neg{background:linear-gradient(90deg,#f04438,#d92d20)}.bar-value{text-align:right;font-variant-numeric:tabular-nums}.bar-value strong{display:block}.bar-value small{color:var(--muted)}
+    .insights{display:grid;gap:10px}.insight{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:12px;border:1px solid #e6ebef;border-radius:13px;background:#fbfcfd}.insight-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#eef2f6;font-weight:900}.insight.success{border-color:#b7ebcb;background:#f4fcf7}.insight.success .insight-icon{background:#dcfae6;color:#067647}.insight.warning{border-color:#f5d7a2;background:#fffbf3}.insight.warning .insight-icon{background:#fff0cf;color:#a15c00}.insight.danger{border-color:#f5c0bc;background:#fff8f7}.insight.danger .insight-icon{background:#fee4e2;color:#b42318}.insight strong{display:block;margin-bottom:2px;font-size:13px}.insight p{margin:0;color:#475467;font-size:12px}
+    .pending-list{display:grid;gap:9px}.pending-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft)}.pending-item strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pending-item small{color:var(--muted)}.pending-amount{text-align:right;font-weight:820}.pending-amount small{display:block;font-weight:500}.risk-bar{height:7px;margin-top:9px;border-radius:999px;background:#edf2f4;overflow:hidden}.risk-fill{height:100%;border-radius:999px;background:var(--green)}.risk-fill.medium{background:var(--amber)}.risk-fill.high{background:var(--red)}
+    .table-tools{display:flex;gap:9px;margin-bottom:11px}.search,.filter{min-height:40px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--text);outline:none}.search{flex:1;padding:0 12px}.filter{padding:0 10px}.search:focus,.filter:focus{border-color:#84adff;box-shadow:0 0 0 3px rgba(21,112,239,.10)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px}table{width:100%;border-collapse:collapse;min-width:840px}th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}th{position:sticky;top:0;background:#f8fbfc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.035em}tr:last-child td{border-bottom:0}.pill{display:inline-flex;padding:4px 8px;border-radius:999px;background:#eef2f6;color:#475467;font-size:10px;font-weight:850}.pill.GREEN,.pill.HALF_GREEN{background:#dcfae6;color:#067647}.pill.RED,.pill.HALF_RED{background:#fee4e2;color:#b42318}.pill.PENDING{background:#fff1cc;color:#9b5b00}.empty{padding:20px;color:var(--muted);text-align:center}
+    .loading{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(243,247,249,.88);backdrop-filter:blur(3px)}.loader-card{display:flex;align-items:center;gap:11px;padding:15px 17px;border:1px solid var(--line);border-radius:14px;background:var(--card);box-shadow:var(--shadow);font-weight:750}.spinner{width:25px;height:25px;border:3px solid #dbe5ea;border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.error{max-width:650px;margin:80px auto;padding:24px;border:1px solid #fecaca;border-radius:18px;background:var(--card);color:#991b1b}
+    @media(prefers-color-scheme:dark){:root{--bg:#0b1220;--card:#111a2b;--soft:#162135;--text:#f2f4f7;--muted:#98a2b3;--line:#263449;--shadow:0 10px 34px rgba(0,0,0,.20)}.chart-shell{background:linear-gradient(180deg,#111b2a,#101827)}.grid-line{stroke:#263449}.axis-label{fill:#98a2b3}.reconciliation,.chart-stat,.pending-item{background:var(--soft)}.chart-note{background:#14223a;color:#b8c3d6}.table-wrap th{background:#162135}.insight{background:#131e30}.insight p{color:#b8c3d6}.period-button:hover{background:#1a2940}}
+    @media(max-width:1120px){.layout{grid-template-columns:82px minmax(0,1fr)}.sidebar{padding:20px 12px}.brand{justify-content:center}.brand span,.nav span,.side-status{display:none}.nav a{justify-content:center;font-size:18px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-summary{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:680px){.layout{display:block}.sidebar{position:static;display:flex;align-items:center;justify-content:space-between;height:auto;padding:10px 14px}.brand{justify-content:flex-start}.brand span{display:block}.brand-mark{width:36px;height:36px}.nav{display:flex;margin:0}.nav a{display:none}.nav a.active{display:flex;padding:9px 11px}.topbar{align-items:center}.topbar h1{font-size:24px}.refresh-label{display:none}.period-shell{display:block;padding:10px}.period-title{display:none}.periods{width:100%}.period-button{padding:8px 11px}.grid{grid-template-columns:1fr}.span-2,.full{grid-column:span 1}.quality-strip{grid-template-columns:repeat(2,1fr)}.quality-item{border-top:1px solid var(--line)}.quality-item:nth-child(1),.quality-item:nth-child(2){border-top:0}.quality-item:nth-child(even){border-right:0}.quality-item:last-child{grid-column:1/-1;border-right:0}.section-head{display:block}.head-badges{justify-content:flex-start;margin-top:8px}.segmented{margin-top:10px;width:100%;overflow:auto}.segment{flex:1}.chart-shell{height:300px}.chart-summary{grid-template-columns:repeat(2,1fr)}.bar-row{grid-template-columns:minmax(105px,1fr) 1.2fr auto;gap:8px}.bar-value small{display:none}.table-tools{display:block}.filter{width:100%;margin-top:8px}.search{width:100%}main{padding:15px}.card{padding:15px}.metric-value{font-size:25px}.reconciliation{justify-content:flex-start}}
   </style>
 </head>
 <body>
@@ -127,95 +52,53 @@
   <div class="layout">
     <aside class="sidebar">
       <div class="brand"><div class="brand-mark">📈</div><span>Bankroll Pro<small>Gestão e performance</small></span></div>
-      <nav class="nav">
-        <a class="active" href="#inicio">▦ <span>Visão geral</span></a>
-        <a href="#analises">⌁ <span>Análises</span></a>
-        <a href="#historico">☷ <span>Histórico</span></a>
-      </nav>
-      <div class="side-status"><strong>Modo econômico ativo</strong>Gráficos processados no seu aparelho. Nenhuma biblioteca pesada no Render.</div>
+      <nav class="nav"><a class="active" href="#inicio">▦ <span>Visão geral</span></a><a href="#analises">⌁ <span>Análises</span></a><a href="#historico">☷ <span>Histórico</span></a></nav>
+      <div class="side-status"><strong>Modo econômico ativo</strong>SVG e JavaScript puro no seu aparelho. Sem Matplotlib, React ou processos extras no Render.</div>
     </aside>
 
     <main id="inicio">
-      <header class="topbar">
-        <div><h1>Dashboard</h1><div id="welcome" class="muted">Resumo inteligente da sua banca</div></div>
-        <div class="top-actions"><button id="refresh" class="refresh-button" type="button"><span>↻</span><b class="refresh-label">Atualizar</b></button></div>
-      </header>
+      <header class="topbar"><div><h1>Dashboard</h1><div id="welcome" class="muted">Resumo inteligente da sua banca</div></div><div class="top-actions"><button id="refresh" class="refresh-button" type="button"><span>↻</span><b class="refresh-label">Atualizar</b></button></div></header>
 
-      <section class="period-shell" aria-label="Filtro de período">
-        <span class="period-title">Período analisado</span>
-        <div id="periods" class="periods">
-          <button class="period-button" data-period="24h">Últimas 24h</button>
-          <button class="period-button" data-period="7">7 dias</button>
-          <button class="period-button" data-period="30">30 dias</button>
-          <button class="period-button" data-period="90">90 dias</button>
-          <button class="period-button" data-period="365">1 ano</button>
-          <button class="period-button" data-period="all">Tudo</button>
-        </div>
-      </section>
+      <section class="period-shell" aria-label="Filtro de período"><span class="period-title">Período analisado</span><div class="periods"><button class="period-button" data-period="24h">Últimas 24h</button><button class="period-button" data-period="7">7 dias</button><button class="period-button" data-period="30">30 dias</button><button class="period-button" data-period="90">90 dias</button><button class="period-button" data-period="365">1 ano</button><button class="period-button" data-period="all">Tudo</button></div></section>
 
       <section class="grid">
-        <article class="card metric" style="--accent:#1570ef;--accent-soft:#eef4ff"><div class="metric-head"><span class="metric-label">Saldo atual</span><span class="metric-icon">💳</span></div><div id="bankroll" class="metric-value">R$ 0,00</div><div class="metric-foot">Banca consolidada</div></article>
+        <article class="card metric" style="--accent:#1570ef;--accent-soft:#eef4ff"><div class="metric-head"><span class="metric-label">Saldo atual</span><span class="metric-icon">💳</span></div><div id="bankroll" class="metric-value">R$ 0,00</div><div class="metric-foot">Banca consolidada agora</div></article>
         <article class="card metric" style="--accent:#079447;--accent-soft:#ecfdf3"><div class="metric-head"><span class="metric-label">Lucro líquido</span><span class="metric-icon">↗</span></div><div id="profit" class="metric-value">R$ 0,00</div><div id="profitCompare" class="metric-foot">No período selecionado</div></article>
         <article class="card metric" style="--accent:#6941c6;--accent-soft:#f4f0ff"><div class="metric-head"><span class="metric-label">ROI</span><span class="metric-icon">%</span></div><div id="roi" class="metric-value">0,00%</div><div id="roiCompare" class="metric-foot">Retorno sobre as stakes</div></article>
         <article class="card metric" style="--accent:#d88900;--accent-soft:#fff8e8"><div class="metric-head"><span class="metric-label">Apostas concluídas</span><span class="metric-icon">◎</span></div><div id="concluded" class="metric-value">0</div><div id="concludedCompare" class="metric-foot">Resultados no período</div></article>
-
         <article class="card metric" style="--accent:#079447;--accent-soft:#ecfdf3"><div class="metric-head"><span class="metric-label">Taxa de acerto</span><span class="metric-icon">🎯</span></div><div id="winRate" class="metric-value">0,00%</div><div id="record" class="metric-foot">0 greens • 0 reds</div></article>
         <article class="card metric" style="--accent:#1570ef;--accent-soft:#eef4ff"><div class="metric-head"><span class="metric-label">Total investido</span><span class="metric-icon">R$</span></div><div id="invested" class="metric-value">R$ 0,00</div><div id="investedCompare" class="metric-foot">Stake liquidada</div></article>
         <article class="card metric" style="--accent:#d88900;--accent-soft:#fff8e8"><div class="metric-head"><span class="metric-label">Exposição aberta</span><span class="metric-icon">⌛</span></div><div id="exposure" class="metric-value">R$ 0,00</div><div id="exposurePct" class="metric-foot">0,00% da banca</div><div class="risk-bar"><div id="exposureBar" class="risk-fill" style="width:0%"></div></div></article>
         <article class="card metric" style="--accent:#d92d20;--accent-soft:#fff1f0"><div class="metric-head"><span class="metric-label">Drawdown máximo</span><span class="metric-icon">↘</span></div><div id="drawdown" class="metric-value">R$ 0,00</div><div id="drawdownPct" class="metric-foot">0,00% do pico</div></article>
 
-        <article class="card full quality-strip">
-          <div class="quality-item"><div class="quality-label">Odd média</div><div id="averageOdds" class="quality-value">0,00</div></div>
-          <div class="quality-item"><div class="quality-label">Stake média</div><div id="averageStake" class="quality-value">R$ 0,00</div></div>
-          <div class="quality-item"><div class="quality-label">Fator de lucro</div><div id="profitFactor" class="quality-value">0,00</div></div>
-          <div class="quality-item"><div class="quality-label">Sequência atual</div><div id="streak" class="quality-value">—</div></div>
-          <div class="quality-item"><div class="quality-label">Pendentes</div><div id="pendingCount" class="quality-value">0</div></div>
-        </article>
+        <article class="card full quality-strip"><div class="quality-item"><div class="quality-label">Odd média</div><div id="averageOdds" class="quality-value">0,00</div></div><div class="quality-item"><div class="quality-label">Stake média</div><div id="averageStake" class="quality-value">R$ 0,00</div></div><div class="quality-item"><div class="quality-label">Fator de lucro</div><div id="profitFactor" class="quality-value">0,00</div></div><div class="quality-item"><div class="quality-label">Sequência atual</div><div id="streak" class="quality-value">—</div></div><div class="quality-item"><div class="quality-label">Pendentes</div><div id="pendingCount" class="quality-value">0</div></div></article>
 
         <article class="card full" id="analises">
           <div class="section-head">
-            <div><h2>Performance da banca</h2><div id="chartSubtitle" class="section-sub">Evolução no período selecionado</div></div>
-            <div class="segmented"><button class="segment active" data-chart="balance">Saldo</button><button class="segment" data-chart="profit">Lucro</button></div>
+            <div><h2>Curva de performance</h2><div id="chartSubtitle" class="section-sub">Evolução conciliada da banca</div></div>
+            <div><div class="head-badges"><span class="badge">⏱ Por data de liquidação</span><span id="reconciledBadge" class="badge ok">✓ Valores conciliados</span></div><div class="segmented"><button class="segment active" data-chart="balance">Saldo</button><button class="segment" data-chart="cumulative">Lucro acumulado</button><button class="segment" data-chart="interval">Por intervalo</button></div></div>
           </div>
+          <div id="reconciliation" class="reconciliation"></div>
           <div id="chart" class="chart-shell"><div class="chart-empty">Carregando gráfico…</div></div>
+          <div id="chartLegend" class="chart-legend"></div>
           <div class="chart-summary">
-            <div class="chart-stat"><span>Variação no período</span><strong id="periodChange">R$ 0,00</strong></div>
+            <div class="chart-stat"><span>Saldo inicial</span><strong id="openingBalance">R$ 0,00</strong></div>
+            <div class="chart-stat"><span>Saldo final</span><strong id="closingBalance">R$ 0,00</strong></div>
+            <div class="chart-stat"><span>Lucro nas apostas</span><strong id="chartProfit">R$ 0,00</strong></div>
+            <div class="chart-stat"><span>Movimentações</span><strong id="chartTransactions">R$ 0,00</strong></div>
+            <div class="chart-stat"><span>Variação da banca</span><strong id="periodChange">R$ 0,00</strong></div>
             <div class="chart-stat"><span>Melhor intervalo</span><strong id="bestInterval">R$ 0,00</strong></div>
-            <div class="chart-stat"><span>Pior intervalo</span><strong id="worstInterval">R$ 0,00</strong></div>
+            <div class="chart-stat"><span id="worstIntervalLabel">Pior intervalo</span><strong id="worstInterval">R$ 0,00</strong></div>
           </div>
+          <div id="chartNote" class="chart-note hidden"></div>
         </article>
 
-        <article class="card span-2">
-          <div class="section-head"><div><h2>Onde você ganha e perde</h2><div class="section-sub">Lucro, ROI e volume por categoria</div></div></div>
-          <div class="breakdown-tabs">
-            <button class="breakdown-tab active" data-breakdown="sports">Esportes</button>
-            <button class="breakdown-tab" data-breakdown="tipsters">Tipsters</button>
-            <button class="breakdown-tab" data-breakdown="bookmakers">Casas</button>
-            <button class="breakdown-tab" data-breakdown="odds_ranges">Faixas de odd</button>
-          </div>
-          <div id="breakdown" class="bar-list"></div>
-        </article>
+        <article class="card span-2"><div class="section-head"><div><h2>Onde você ganha e perde</h2><div class="section-sub">Lucro, ROI, amostra e volume por categoria</div></div></div><div class="breakdown-tabs"><button class="breakdown-tab active" data-breakdown="sports">Esportes</button><button class="breakdown-tab" data-breakdown="tipsters">Tipsters</button><button class="breakdown-tab" data-breakdown="bookmakers">Casas</button><button class="breakdown-tab" data-breakdown="odds_ranges">Faixas de odd</button></div><div id="breakdown" class="bar-list"></div></article>
+        <article class="card span-2"><div class="section-head"><div><h2>Insights automáticos</h2><div class="section-sub">Leitura objetiva, sem IA pesada no servidor</div></div></div><div id="insights" class="insights"></div></article>
+        <article class="card span-2"><div class="section-head"><div><h2>Apostas pendentes</h2><div class="section-sub">Exposição que ainda pode alterar sua banca</div></div><span id="pendingBadge" class="pill PENDING">0 abertas</span></div><div id="pendingList" class="pending-list"></div></article>
+        <article class="card span-2"><div class="section-head"><div><h2>Leitura do período</h2><div id="periodSummaryLabel" class="section-sub">Indicadores rápidos</div></div></div><div id="periodSummary" class="insights"></div></article>
 
-        <article class="card span-2">
-          <div class="section-head"><div><h2>Insights automáticos</h2><div class="section-sub">Leitura objetiva dos seus dados</div></div></div>
-          <div id="insights" class="insights"></div>
-        </article>
-
-        <article class="card span-2">
-          <div class="section-head"><div><h2>Apostas pendentes</h2><div class="section-sub">Exposição que ainda pode alterar sua banca</div></div><span id="pendingBadge" class="pill PENDING">0 abertas</span></div>
-          <div id="pendingList" class="pending-list"></div>
-        </article>
-
-        <article class="card span-2">
-          <div class="section-head"><div><h2>Resumo do período</h2><div id="periodSummaryLabel" class="section-sub">Indicadores rápidos</div></div></div>
-          <div id="periodSummary" class="insights"></div>
-        </article>
-
-        <article class="card full" id="historico">
-          <div class="section-head"><div><h2>Últimas apostas</h2><div class="section-sub">Busca e filtro sem novas consultas ao servidor</div></div><span id="generated" class="muted"></span></div>
-          <div class="table-tools"><input id="search" class="search" type="search" placeholder="Buscar evento, esporte, mercado, tipster…"><select id="statusFilter" class="filter"><option value="all">Todos os status</option><option value="GREEN">Green</option><option value="RED">Red</option><option value="PENDING">Pendente</option><option value="VOID">Void</option><option value="HALF_GREEN">Half green</option><option value="HALF_RED">Half red</option></select></div>
-          <div class="table-wrap"><table><thead><tr><th>Data</th><th>Evento</th><th>Mercado</th><th>Tipster / Casa</th><th>Odd</th><th>Stake</th><th>Status</th><th>Resultado</th></tr></thead><tbody id="bets"></tbody></table></div>
-        </article>
+        <article class="card full" id="historico"><div class="section-head"><div><h2>Últimas apostas</h2><div class="section-sub">Busca e filtro local, sem novas consultas ao Render</div></div><span id="generated" class="muted"></span></div><div class="table-tools"><input id="search" class="search" type="search" placeholder="Buscar evento, esporte, mercado, tipster ou casa…"><select id="statusFilter" class="filter"><option value="all">Todos os status</option><option value="GREEN">Green</option><option value="RED">Red</option><option value="PENDING">Pendente</option><option value="VOID">Void</option><option value="HALF_GREEN">Half green</option><option value="HALF_RED">Half red</option></select></div><div class="table-wrap"><table><thead><tr><th>Data</th><th>Evento</th><th>Mercado</th><th>Tipster / Casa</th><th>Odd</th><th>Stake</th><th>Status</th><th>Resultado</th></tr></thead><tbody id="bets"></tbody></table></div></article>
       </section>
     </main>
   </div>
@@ -223,206 +106,79 @@
   <script>
     const TOKEN={{ token|tojson }};
     const $=id=>document.getElementById(id);
-    const tg=window.Telegram?.WebApp;
-    if(tg){tg.ready();tg.expand();}
-
+    const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();document.documentElement.dataset.telegramTheme=tg.colorScheme||'light';}
     let DATA=null;
     let currentPeriod=localStorage.getItem('bankroll-period')||'30';
-    let chartMode=localStorage.getItem('bankroll-chart')||'balance';
+    let chartMode=localStorage.getItem('bankroll-chart-v5')||'balance';
+    if(chartMode==='profit')chartMode='interval';
+    if(!['balance','cumulative','interval'].includes(chartMode))chartMode='balance';
     let breakdownMode='sports';
+    let resizeTimer=null;
 
     const PERIOD_LABELS={'24h':'Últimas 24 horas','7':'Últimos 7 dias','30':'Últimos 30 dias','90':'Últimos 90 dias','365':'Último ano','all':'Todo o histórico'};
+    const GRANULARITY_LABELS={hour:'hora',day:'dia',week:'semana',month:'mês'};
     const STATUS_LABELS={GREEN:'Green',RED:'Red',VOID:'Void',HALF_GREEN:'Half green',HALF_RED:'Half red',PENDING:'Pendente'};
 
     function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
     function number(value,places=2){return Number(value||0).toLocaleString('pt-BR',{minimumFractionDigits:places,maximumFractionDigits:places});}
-    function money(value){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(value||0));}
+    function money(value){const formatted=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(value||0));const currency=DATA?.profile?.currency||'R$';return currency==='R$'?formatted:formatted.replace('R$',currency);}
     function compactMoney(value){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',notation:'compact',maximumFractionDigits:1}).format(Number(value||0));}
     function signedClass(value){return Number(value)>0?'positive':Number(value)<0?'negative':'';}
     function setSigned(el,value,formatter=money){el.textContent=formatter(value);el.classList.remove('positive','negative');const cls=signedClass(value);if(cls)el.classList.add(cls);}
+    function trendMoney(current,previous){if(!DATA?.previous)return '<span>Resultado consolidado</span>';const delta=Number(current||0)-Number(previous||0),arrow=delta>0?'↑':delta<0?'↓':'→',cls=delta>0?'up':delta<0?'down':'flat';return `<span class="trend ${cls}">${arrow} ${escapeHtml(money(Math.abs(delta)))}</span><span>vs janela anterior</span>`;}
+    function trendPoints(current,previous){if(!DATA?.previous)return '<span>Retorno consolidado</span>';const delta=Number(current||0)-Number(previous||0),arrow=delta>0?'↑':delta<0?'↓':'→',cls=delta>0?'up':delta<0?'down':'flat';return `<span class="trend ${cls}">${arrow} ${number(Math.abs(delta))} p.p.</span><span>vs janela anterior</span>`;}
+    function trendPercent(current,previous){if(!DATA?.previous)return '<span>Total consolidado</span>';const c=Number(current||0),p=Number(previous||0);if(p===0)return c===0?'<span class="trend flat">→ 0%</span><span>vs janela anterior</span>':'<span class="trend up">Novo</span><span>vs janela anterior</span>';const delta=(c-p)/Math.abs(p)*100,arrow=delta>0?'↑':delta<0?'↓':'→',cls=delta>0?'up':delta<0?'down':'flat';return `<span class="trend ${cls}">${arrow} ${number(Math.abs(delta),1)}%</span><span>vs janela anterior</span>`;}
 
-    function percentDelta(current,previous){
-      const c=Number(current||0),p=Number(previous||0);
-      if(p===0)return c===0?0:null;
-      return ((c-p)/Math.abs(p))*100;
-    }
-    function comparisonHtml(current,previous,type='percent'){
-      if(!DATA?.previous)return '<span>Sem comparação para todo o histórico</span>';
-      const delta=type==='points'?Number(current||0)-Number(previous||0):percentDelta(current,previous);
-      if(delta===null)return '<span class="trend up">Novo</span><span>vs período anterior</span>';
-      const cls=delta>0?'up':delta<0?'down':'flat';
-      const arrow=delta>0?'↑':delta<0?'↓':'→';
-      const text=type==='points'?`${arrow} ${number(Math.abs(delta))} p.p.`:`${arrow} ${number(Math.abs(delta),1)}%`;
-      return `<span class="trend ${cls}">${text}</span><span>vs período anterior</span>`;
-    }
+    function activatePeriod(){document.querySelectorAll('.period-button').forEach(b=>b.classList.toggle('active',b.dataset.period===currentPeriod));}
+    function activateChart(){document.querySelectorAll('[data-chart]').forEach(b=>b.classList.toggle('active',b.dataset.chart===chartMode));}
+    function parseTime(value){const t=new Date(value).getTime();return Number.isFinite(t)?t:Date.now();}
+    function axisDate(timestamp){const date=new Date(timestamp);if(DATA.series_granularity==='hour')return date.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit'});if(DATA.series_granularity==='month')return date.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});return date.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}
+    function longDate(timestamp){return new Date(timestamp).toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+    function niceNumber(range,round){const exponent=Math.floor(Math.log10(Math.max(range,1e-9))),fraction=range/10**exponent;let niceFraction;if(round){niceFraction=fraction<1.5?1:fraction<3?2:fraction<7?5:10;}else{niceFraction=fraction<=1?1:fraction<=2?2:fraction<=5?5:10;}return niceFraction*10**exponent;}
+    function niceScale(values,includeZero=false,maxTicks=5){let min=Math.min(...values),max=Math.max(...values);if(includeZero){min=Math.min(min,0);max=Math.max(max,0);}if(min===max){const pad=Math.max(Math.abs(min)*.08,1);min-=pad;max+=pad;}else{const pad=(max-min)*.08;min-=pad;max+=pad;}const range=niceNumber(max-min,false),step=niceNumber(range/(maxTicks-1),true),niceMin=Math.floor(min/step)*step,niceMax=Math.ceil(max/step)*step;const ticks=[];for(let v=niceMin;v<=niceMax+step*.5;v+=step)ticks.push(Math.abs(v)<step/1000?0:v);return {min:niceMin,max:niceMax,ticks};}
 
-    function activatePeriod(){
-      document.querySelectorAll('.period-button').forEach(button=>button.classList.toggle('active',button.dataset.period===currentPeriod));
-    }
-    function activateChart(){
-      document.querySelectorAll('[data-chart]').forEach(button=>button.classList.toggle('active',button.dataset.chart===chartMode));
-    }
+    function chartPoints(){const c=DATA.chart;return [{point_at:c.opening_at,label:'Início',balance:c.opening_balance,cumulative_profit:0,profit:0,transaction_effect:0,net_change:0,bets:0,invested:0,is_opening:true},...DATA.series];}
+    function chartValue(item){if(chartMode==='balance')return Number(item.balance||0);if(chartMode==='cumulative')return Number(item.cumulative_profit||0);return Number(item.profit||0);}
+    function renderChartStats(){const c=DATA.chart;$('openingBalance').textContent=money(c.opening_balance);$('closingBalance').textContent=money(c.closing_balance);setSigned($('chartProfit'),c.bet_profit);setSigned($('chartTransactions'),c.transaction_effect);setSigned($('periodChange'),c.net_change);setSigned($('bestInterval'),c.best_interval);const hasLoss=Number(c.worst_interval)<0;$('worstIntervalLabel').textContent=hasLoss?'Pior intervalo':'Menor resultado';setSigned($('worstInterval'),c.worst_interval);$('reconciliation').innerHTML=`<strong>${money(c.opening_balance)}</strong><span>saldo inicial</span><span>+</span><strong class="${signedClass(c.bet_profit)}">${money(c.bet_profit)}</strong><span>apostas</span><span>+</span><strong class="${signedClass(c.transaction_effect)}">${money(c.transaction_effect)}</strong><span>movimentações</span><span class="equals">=</span><strong>${money(c.closing_balance)}</strong><span>saldo final</span>`;const diff=Math.abs(Number(c.reconciliation_difference||0));$('reconciledBadge').textContent=diff<.01?'✓ Valores conciliados':'! Verificar conciliação';$('reconciledBadge').classList.toggle('ok',diff<.01);const note=$('chartNote');if(DATA.period==='all'&&Math.abs(Number(DATA.summary.base_profit||0))>.009){note.classList.remove('hidden');note.innerHTML=`<strong>Histórico importado:</strong> o saldo inicial da curva já contém ${escapeHtml(money(DATA.summary.base_profit))} de resultado consolidado sem datas individuais. Por isso, esse valor não reaparece como barra mensal.`;}else{note.classList.add('hidden');note.textContent='';}}
 
-    function bucketDate(raw){
-      const text=String(raw||'');
-      const date=new Date(text.length===10?`${text}T00:00:00`:text);
-      return Number.isNaN(date.getTime())?new Date():date;
-    }
-    function bucketLabel(raw,granularity,long=false){
-      const date=bucketDate(raw);
-      if(granularity==='hour')return date.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-      if(granularity==='day')return date.toLocaleDateString('pt-BR',long?{weekday:'short',day:'2-digit',month:'short'}:{day:'2-digit',month:'2-digit'});
-      if(granularity==='week')return `Sem. ${date.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}`;
-      return date.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
-    }
-
-    function chartSummary(series){
-      const profits=series.map(item=>Number(item.profit||0));
-      const changes=series.map(item=>Number(item.net_change||0));
-      const best=profits.length?Math.max(...profits):0;
-      const worst=profits.length?Math.min(...profits):0;
-      const change=changes.reduce((total,value)=>total+value,0);
-      setSigned($('periodChange'),change);
-      setSigned($('bestInterval'),best);
-      setSigned($('worstInterval'),worst);
-    }
-
-    function renderChart(series){
-      const root=$('chart');
-      root.innerHTML='';
-      chartSummary(series);
-      if(!series.length){root.innerHTML='<div class="chart-empty"><div><strong>Sem movimentações neste período</strong><br>Assim que uma aposta for liquidada, a evolução aparecerá aqui.</div></div>';return;}
-
-      const width=1000,height=310,left=72,right=24,top=22,bottom=44;
-      const plotW=width-left-right,plotH=height-top-bottom;
-      const values=series.map(item=>chartMode==='balance'?Number(item.balance||0):Number(item.profit||0));
-      let min=Math.min(...values),max=Math.max(...values);
-      if(chartMode==='profit'){min=Math.min(min,0);max=Math.max(max,0);}
-      if(max===min){const pad=Math.max(Math.abs(max)*.08,1);max+=pad;min-=pad;}
-      const range=max-min;
-      const x=i=>left+(series.length===1?plotW/2:(i/(series.length-1))*plotW);
-      const y=value=>top+((max-value)/range)*plotH;
-      const yTicks=4;
-      let grid='';
-      for(let i=0;i<=yTicks;i++){
-        const value=max-(range/yTicks)*i,yy=y(value);
-        grid+=`<line class="grid-line" x1="${left}" y1="${yy}" x2="${width-right}" y2="${yy}"/><text class="axis-label" x="${left-9}" y="${yy+4}" text-anchor="end">${escapeHtml(compactMoney(value))}</text>`;
-      }
-      const labelCount=Math.min(series.length,6);
-      const labelIndexes=[...new Set(Array.from({length:labelCount},(_,i)=>Math.round(i*(series.length-1)/Math.max(labelCount-1,1))))];
-      const xLabels=labelIndexes.map(i=>`<text class="axis-label" x="${x(i)}" y="${height-15}" text-anchor="middle">${escapeHtml(bucketLabel(series[i].bucket,DATA.series_granularity))}</text>`).join('');
-
-      let marks='';
-      if(chartMode==='balance'){
-        const points=values.map((value,i)=>`${x(i)},${y(value)}`).join(' ');
-        const area=`${x(0)},${height-bottom} ${points} ${x(series.length-1)},${height-bottom}`;
-        marks=`<defs><linearGradient id="balanceGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#079447" stop-opacity=".25"/><stop offset="100%" stop-color="#079447" stop-opacity=".01"/></linearGradient></defs><polygon points="${area}" fill="url(#balanceGradient)"/><polyline class="balance-line" points="${points}"/>${values.map((value,i)=>`<circle class="balance-dot" cx="${x(i)}" cy="${y(value)}" r="3.5"/>`).join('')}`;
+    function renderChart(){
+      const root=$('chart');root.innerHTML='';renderChartStats();
+      const c=DATA.chart,allPoints=chartPoints(),intervalPoints=DATA.series;
+      const source=chartMode==='interval'?intervalPoints:allPoints;
+      if(!source.length){root.innerHTML='<div class="chart-empty"><div><strong>Sem dados neste período</strong><br>Liquide uma aposta para iniciar a curva.</div></div>';return;}
+      const width=Math.max(root.clientWidth||900,320),height=Math.max(root.clientHeight||360,280),left=72,right=22,top=24,bottom=48,plotW=width-left-right,plotH=height-top-bottom;
+      const values=source.map(chartValue),scale=niceScale(values,chartMode!=='balance',5),range=Math.max(scale.max-scale.min,1);
+      const start=parseTime(c.opening_at),end=Math.max(parseTime(c.closing_at),start+1);const xTime=t=>left+((parseTime(t)-start)/(end-start))*plotW;const y=v=>top+((scale.max-v)/range)*plotH;
+      let grid=scale.ticks.map(v=>`<line class="grid-line" x1="${left}" y1="${y(v)}" x2="${width-right}" y2="${y(v)}"/><text class="axis-label" x="${left-9}" y="${y(v)+4}" text-anchor="end">${escapeHtml(compactMoney(v))}</text>`).join('');
+      if(scale.min<0&&scale.max>0)grid+=`<line class="zero-line" x1="${left}" y1="${y(0)}" x2="${width-right}" y2="${y(0)}"/>`;
+      const tickCount=width<520?4:6,xTicks=Array.from({length:tickCount},(_,i)=>start+(end-start)*(i/Math.max(tickCount-1,1)));const xLabels=xTicks.map((t,i)=>`<text class="axis-label" x="${left+plotW*(i/Math.max(tickCount-1,1))}" y="${height-15}" text-anchor="${i===0?'start':i===tickCount-1?'end':'middle'}">${escapeHtml(axisDate(t))}</text>`).join('');
+      let marks='',color=chartMode==='balance'?(Number(c.net_change)>=0?'#079447':'#d92d20'):(Number(c.bet_profit)>=0?'#079447':'#d92d20');
+      if(chartMode==='interval'){
+        const maxBar=Math.min(42,Math.max(7,plotW/Math.max(intervalPoints.length,1)*.64));
+        marks=intervalPoints.map((item,i)=>{const xx=xTime(item.point_at),value=Number(item.profit||0),yy=y(value),zero=y(0),barY=Math.min(yy,zero),barH=Math.max(Math.abs(zero-yy),1),fill=value>=0?'#079447':'#d92d20';return `<rect data-index="${i}" class="interval-bar" x="${xx-maxBar/2}" y="${barY}" width="${maxBar}" height="${barH}" rx="3" fill="${fill}" opacity=".88"/>`;}).join('');
       }else{
-        const slot=plotW/Math.max(series.length,1),barW=Math.max(4,Math.min(24,slot*.58)),zeroY=y(0);
-        marks=values.map((value,i)=>{const yy=y(value),barY=Math.min(yy,zeroY),barH=Math.max(2,Math.abs(zeroY-yy));const color=value>=0?'#079447':'#d92d20';return `<rect x="${x(i)-barW/2}" y="${barY}" width="${barW}" height="${barH}" rx="3" fill="${color}" opacity=".88"/>`;}).join('')+`<line class="zero-line" x1="${left}" y1="${zeroY}" x2="${width-right}" y2="${zeroY}"/>`;
+        const points=allPoints.map(item=>`${xTime(item.point_at)},${y(chartValue(item))}`).join(' '),baseY=chartMode==='cumulative'?y(0):y(scale.min),area=`${xTime(allPoints[0].point_at)},${baseY} ${points} ${xTime(allPoints.at(-1).point_at)},${baseY}`;
+        marks=`<defs><linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity=".25"/><stop offset="100%" stop-color="${color}" stop-opacity=".01"/></linearGradient></defs><polygon points="${area}" fill="url(#curveGradient)"/><polyline class="chart-line" points="${points}" stroke="${color}"/>${allPoints.map((item,i)=>`<circle class="chart-dot" data-index="${i}" cx="${xTime(item.point_at)}" cy="${y(chartValue(item))}" r="${item.is_opening||i===allPoints.length-1?4:2.7}" stroke="${color}"/>`).join('')}${allPoints.filter(item=>Number(item.transaction_effect)).map(item=>`<circle class="transaction-dot" cx="${xTime(item.point_at)}" cy="${y(chartValue(item))}" r="5"/>`).join('')}`;
       }
-
-      const zones=series.map((item,i)=>{const zoneW=plotW/Math.max(series.length,1);return `<rect class="hover-zone" data-index="${i}" x="${Math.max(left,x(i)-zoneW/2)}" y="${top}" width="${zoneW}" height="${plotH}"/>`;}).join('');
-      root.innerHTML=`<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Gráfico de performance">${grid}${marks}${xLabels}${zones}</svg><div id="chartTooltip" class="chart-tooltip hidden"></div>`;
-      root.querySelectorAll('.hover-zone').forEach(zone=>{
-        const show=event=>showTooltip(event,series[Number(zone.dataset.index)]);
-        zone.addEventListener('mousemove',show);zone.addEventListener('mouseenter',show);zone.addEventListener('touchstart',show,{passive:true});
-        zone.addEventListener('mouseleave',()=>$('chartTooltip').classList.add('hidden'));
-      });
+      const interactionSource=chartMode==='interval'?intervalPoints:allPoints;const zones=interactionSource.map((item,i)=>{const xx=xTime(item.point_at),prev=i?xTime(interactionSource[i-1].point_at):left,next=i<interactionSource.length-1?xTime(interactionSource[i+1].point_at):width-right,l=Math.max(left,(prev+xx)/2),r=Math.min(width-right,(xx+next)/2);return `<rect class="hover-zone" data-index="${i}" x="${l}" y="${top}" width="${Math.max(r-l,8)}" height="${plotH}"/>`;}).join('');
+      root.innerHTML=`<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-label="Gráfico de performance">${grid}${marks}${xLabels}<g id="crosshair" class="hidden"><line class="chart-crosshair" x1="0" y1="${top}" x2="0" y2="${height-bottom}"/></g>${zones}</svg><div id="chartTooltip" class="chart-tooltip hidden"></div>`;
+      root.querySelectorAll('.hover-zone').forEach(zone=>{const show=e=>showTooltip(e,interactionSource[Number(zone.dataset.index)],xTime,y);zone.addEventListener('mousemove',show);zone.addEventListener('mouseenter',show);zone.addEventListener('touchstart',show,{passive:true});zone.addEventListener('mouseleave',hideTooltip);});
+      const legend=chartMode==='balance'?'<span class="legend-item"><i class="legend-dot"></i>Saldo final de cada intervalo</span><span class="legend-item"><i class="legend-dot blue"></i>Aporte ou saque</span>':chartMode==='cumulative'?'<span class="legend-item"><i class="legend-dot"></i>Lucro acumulado das apostas</span>':'<span class="legend-item"><i class="legend-dot"></i>Intervalo positivo</span><span class="legend-item"><i class="legend-dot red"></i>Intervalo negativo</span>';$('chartLegend').innerHTML=legend;
     }
 
-    function showTooltip(event,item){
-      const root=$('chart'),tip=$('chartTooltip'),rect=root.getBoundingClientRect();
-      const point=event.touches?.[0]||event;
-      let px=point.clientX-rect.left,py=point.clientY-rect.top;
-      px=Math.max(80,Math.min(rect.width-80,px));py=Math.max(65,Math.min(rect.height-10,py));
-      tip.innerHTML=`<span>${escapeHtml(bucketLabel(item.bucket,DATA.series_granularity,true))}</span><strong class="${signedClass(chartMode==='balance'?item.balance:item.profit)}">${chartMode==='balance'?money(item.balance):money(item.profit)}</strong><span>Lucro: ${money(item.profit)}${Number(item.transaction_effect)?`<br>Movimentações: ${money(item.transaction_effect)}`:''}</span>`;
-      tip.style.left=`${px}px`;tip.style.top=`${py}px`;tip.classList.remove('hidden');
-    }
+    function showTooltip(event,item,xTime,y){const root=$('chart'),tip=$('chartTooltip'),rect=root.getBoundingClientRect(),point=event.touches?.[0]||event;let px=point.clientX-rect.left,py=point.clientY-rect.top;px=Math.max(105,Math.min(rect.width-105,px));py=Math.max(95,Math.min(rect.height-12,py));const headline=item.is_opening?'Saldo de abertura':chartMode==='balance'?'Saldo no fim do intervalo':chartMode==='cumulative'?'Lucro acumulado':'Resultado do intervalo';const value=item.is_opening?item.balance:chartValue(item);tip.innerHTML=`<span>${escapeHtml(item.is_opening?'Início do período':item.label||longDate(item.point_at))}</span><strong class="${signedClass(chartMode==='balance'?0:value)}">${money(value)}</strong><div class="tooltip-grid"><span>${headline}</span><b>${money(value)}</b>${item.is_opening?'':`<span>Lucro das apostas</span><b class="${signedClass(item.profit)}">${money(item.profit)}</b><span>Movimentações</span><b class="${signedClass(item.transaction_effect)}">${money(item.transaction_effect)}</b><span>Apostas / stake</span><b>${item.bets} / ${money(item.invested)}</b>`}</div>`;tip.style.left=`${px}px`;tip.style.top=`${py}px`;tip.classList.remove('hidden');const cross=root.querySelector('#crosshair');if(cross){const svgX=xTime(item.point_at),line=cross.querySelector('line');line.setAttribute('x1',svgX);line.setAttribute('x2',svgX);cross.classList.remove('hidden');}}
+    function hideTooltip(){const tip=$('chartTooltip');if(tip)tip.classList.add('hidden');const cross=$('chart')?.querySelector('#crosshair');if(cross)cross.classList.add('hidden');}
 
-    function renderBreakdown(){
-      const root=$('breakdown'),items=DATA?.breakdowns?.[breakdownMode]||[];
-      root.innerHTML='';
-      if(!items.length){root.innerHTML='<div class="empty">Sem dados suficientes nesta categoria.</div>';return;}
-      const max=Math.max(...items.map(item=>Math.abs(Number(item.profit||0))),1);
-      items.forEach(item=>{
-        const row=document.createElement('div');row.className='bar-row';
-        row.innerHTML=`<div class="bar-label"><strong title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</strong><small>${item.bets} aposta(s)</small></div><div class="bar-track"><div class="bar-fill ${item.profit<0?'neg':''}" style="width:${Math.max(3,Math.abs(item.profit)/max*100)}%"></div></div><div class="bar-value ${signedClass(item.profit)}"><strong>${money(item.profit)}</strong><small>ROI ${number(item.roi)}%</small></div>`;
-        root.appendChild(row);
-      });
-    }
+    function renderBreakdown(){const root=$('breakdown'),items=DATA?.breakdowns?.[breakdownMode]||[];root.innerHTML='';if(!items.length){root.innerHTML='<div class="empty">Sem dados suficientes nesta categoria.</div>';return;}const max=Math.max(...items.map(i=>Math.abs(Number(i.profit||0))),1);items.forEach(item=>{const amount=Math.min(50,Math.abs(Number(item.profit||0))/max*50),positive=Number(item.profit)>=0,left=positive?50:50-amount;const row=document.createElement('div');row.className='bar-row';row.innerHTML=`<div class="bar-label"><strong title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</strong><small>${item.bets} aposta(s) • ${item.bets<10?'amostra pequena':'amostra útil'}</small></div><div class="diverge-track"><div class="diverge-fill ${positive?'':'neg'}" style="left:${left}%;width:${Math.max(amount,1.5)}%"></div></div><div class="bar-value ${signedClass(item.profit)}"><strong>${money(item.profit)}</strong><small>ROI ${number(item.roi)}%</small></div>`;root.appendChild(row);});}
+    function renderInsights(items){const icons={success:'✓',warning:'!',danger:'×',info:'i'};$('insights').innerHTML=items.map(item=>`<div class="insight ${escapeHtml(item.level)}"><div class="insight-icon">${icons[item.level]||'i'}</div><div><strong>${escapeHtml(item.title||'Insight')}</strong><p>${escapeHtml(item.text)}</p></div></div>`).join('');}
+    function renderPending(items){$('pendingBadge').textContent=`${items.length} aberta(s)`;if(!items.length){$('pendingList').innerHTML='<div class="empty">Nenhuma aposta pendente. Sua exposição está zerada.</div>';return;}$('pendingList').innerHTML=items.map(item=>`<div class="pending-item"><div><strong>${escapeHtml(item.event)}</strong><small>${escapeHtml(item.market)} • ${escapeHtml(item.bookmaker)}</small></div><div class="pending-amount">${money(item.stake)}<small>odd ${number(item.odds)}</small></div></div>`).join('');}
+    function renderPeriodSummary(s){const factor=s.profit_factor===null?(s.gross_profit>0?'∞':'0,00'):number(s.profit_factor),items=[{level:s.profit>=0?'success':'danger',title:'Resultado líquido',text:`${money(s.profit)} em ${s.concluded} aposta(s) concluída(s).`},{level:'info',title:'Qualidade do resultado',text:`Fator de lucro ${factor}; ganhos brutos de ${money(s.gross_profit)} contra perdas brutas de ${money(s.gross_loss)}.`},{level:s.open_exposure_pct>=15?'warning':'info',title:'Risco em aberto',text:`${s.pending} aposta(s) pendente(s), somando ${money(s.open_exposure)} (${number(s.open_exposure_pct)}% da banca).`}],icons={success:'✓',warning:'!',danger:'×',info:'i'};$('periodSummary').innerHTML=items.map(i=>`<div class="insight ${i.level}"><div class="insight-icon">${icons[i.level]}</div><div><strong>${i.title}</strong><p>${i.text}</p></div></div>`).join('');}
+    function renderBets(){const query=$('search').value.trim().toLowerCase(),status=$('statusFilter').value,items=(DATA?.recent_bets||[]).filter(item=>{const hay=[item.event,item.sport,item.market,item.tipster,item.bookmaker].join(' ').toLowerCase();return(!query||hay.includes(query))&&(status==='all'||item.status===status);});$('bets').innerHTML=items.map(item=>`<tr><td>${escapeHtml(item.date)}</td><td><strong>${escapeHtml(item.event)}</strong><br><span class="muted">${escapeHtml(item.sport)}</span></td><td>${escapeHtml(item.market)}</td><td>${escapeHtml(item.tipster)}<br><span class="muted">${escapeHtml(item.bookmaker)}</span></td><td>${number(item.odds)}</td><td>${money(item.stake)}</td><td><span class="pill ${escapeHtml(item.status)}">${escapeHtml(STATUS_LABELS[item.status]||item.status)}</span></td><td class="${signedClass(item.profit)}"><strong>${money(item.profit)}</strong></td></tr>`).join('')||'<tr><td colspan="8" class="empty">Nenhuma aposta encontrada com esses filtros.</td></tr>';}
 
-    function renderInsights(items){
-      const icons={success:'✓',warning:'!',danger:'×',info:'i'};
-      $('insights').innerHTML=items.map(item=>`<div class="insight ${escapeHtml(item.level)}"><div class="insight-icon">${icons[item.level]||'i'}</div><div><strong>${escapeHtml(item.title||'Insight')}</strong><p>${escapeHtml(item.text)}</p></div></div>`).join('');
-    }
+    function render(data){DATA=data;const s=data.summary,p=data.previous;$('welcome').textContent=`Olá, ${data.profile.display_name}. ${PERIOD_LABELS[data.period]} em uma visão conciliada.`;$('periodSummaryLabel').textContent=PERIOD_LABELS[data.period];$('chartSubtitle').textContent=`${PERIOD_LABELS[data.period]} • agregação por ${GRANULARITY_LABELS[data.series_granularity]||data.series_granularity}`;$('bankroll').textContent=money(s.current_bankroll);setSigned($('profit'),s.profit);$('profitCompare').innerHTML=p?trendMoney(s.profit,p.profit):'<span>Resultado consolidado</span>';setSigned($('roi'),s.roi,v=>`${number(v)}%`);$('roiCompare').innerHTML=p?trendPoints(s.roi,p.roi):'<span>Retorno sobre as stakes</span>';$('concluded').textContent=s.concluded;$('concludedCompare').innerHTML=p?trendPercent(s.concluded,p.concluded):'<span>Total consolidado</span>';$('winRate').textContent=`${number(s.win_rate)}%`;$('record').textContent=`${s.greens+s.half_greens} greens • ${s.reds+s.half_reds} reds • ${s.voids} voids`;$('invested').textContent=money(s.invested);$('investedCompare').innerHTML=p?trendPercent(s.invested,p.invested):'<span>Stake liquidada consolidada</span>';$('exposure').textContent=money(s.open_exposure);$('exposurePct').textContent=`${number(s.open_exposure_pct)}% da banca`;const exposureWidth=Math.max(0,Math.min(100,s.open_exposure_pct));$('exposureBar').style.width=`${exposureWidth}%`;$('exposureBar').className=`risk-fill ${s.open_exposure_pct>=15?'high':s.open_exposure_pct>=8?'medium':''}`;$('drawdown').textContent=money(s.max_drawdown);$('drawdown').classList.toggle('negative',s.max_drawdown>0);$('drawdownPct').textContent=`${number(s.max_drawdown_pct)}% do pico de performance`;$('averageOdds').textContent=number(s.average_odds);$('averageStake').textContent=money(s.average_stake);$('profitFactor').textContent=s.profit_factor===null?(s.gross_profit>0?'∞':'0,00'):number(s.profit_factor);$('streak').textContent=s.streak.count?`${s.streak.kind==='WIN'?'🔥 +':'🧊 -'}${s.streak.count}`:'Sem sequência';$('pendingCount').textContent=s.pending;$('generated').textContent=`Atualizado ${new Date(data.generated_at).toLocaleString('pt-BR')}`;renderChart();renderBreakdown();renderInsights(data.insights);renderPending(data.pending_bets);renderPeriodSummary(s);renderBets();}
 
-    function renderPending(items){
-      $('pendingBadge').textContent=`${items.length} aberta(s)`;
-      if(!items.length){$('pendingList').innerHTML='<div class="empty">Nenhuma aposta pendente. Sua exposição está zerada.</div>';return;}
-      $('pendingList').innerHTML=items.map(item=>`<div class="pending-item"><div><strong>${escapeHtml(item.event)}</strong><small>${escapeHtml(item.market)} • ${escapeHtml(item.bookmaker)}</small></div><div class="pending-amount">${money(item.stake)}<small>odd ${number(item.odds)}</small></div></div>`).join('');
-    }
-
-    function renderPeriodSummary(summary){
-      const factor=summary.profit_factor===null?(summary.gross_profit>0?'∞':'0,00'):number(summary.profit_factor);
-      const items=[
-        {level:summary.profit>=0?'success':'danger',title:'Resultado líquido',text:`${money(summary.profit)} em ${summary.concluded} aposta(s) concluída(s).`},
-        {level:'info',title:'Eficiência',text:`Fator de lucro ${factor}; ganhos brutos de ${money(summary.gross_profit)} contra perdas brutas de ${money(summary.gross_loss)}.`},
-        {level:summary.open_exposure_pct>=15?'warning':'info',title:'Risco em aberto',text:`${summary.pending} aposta(s) pendente(s), somando ${money(summary.open_exposure)} (${number(summary.open_exposure_pct)}% da banca).`}
-      ];
-      const icons={success:'✓',warning:'!',danger:'×',info:'i'};
-      $('periodSummary').innerHTML=items.map(item=>`<div class="insight ${item.level}"><div class="insight-icon">${icons[item.level]}</div><div><strong>${item.title}</strong><p>${item.text}</p></div></div>`).join('');
-    }
-
-    function renderBets(){
-      const query=$('search').value.trim().toLowerCase(),status=$('statusFilter').value;
-      const items=(DATA?.recent_bets||[]).filter(item=>{
-        const haystack=[item.event,item.sport,item.market,item.tipster,item.bookmaker].join(' ').toLowerCase();
-        return (!query||haystack.includes(query))&&(status==='all'||item.status===status);
-      });
-      $('bets').innerHTML=items.map(item=>`<tr><td>${escapeHtml(item.date)}</td><td><strong>${escapeHtml(item.event)}</strong><br><span class="muted">${escapeHtml(item.sport)}</span></td><td>${escapeHtml(item.market)}</td><td>${escapeHtml(item.tipster)}<br><span class="muted">${escapeHtml(item.bookmaker)}</span></td><td>${number(item.odds)}</td><td>${money(item.stake)}</td><td><span class="pill ${escapeHtml(item.status)}">${escapeHtml(STATUS_LABELS[item.status]||item.status)}</span></td><td class="${signedClass(item.profit)}"><strong>${money(item.profit)}</strong></td></tr>`).join('')||'<tr><td colspan="8" class="empty">Nenhuma aposta encontrada com esses filtros.</td></tr>';
-    }
-
-    function render(data){
-      DATA=data;const s=data.summary,p=data.previous;
-      $('welcome').textContent=`Olá, ${data.profile.display_name}. ${PERIOD_LABELS[data.period]} em uma visão clara.`;
-      $('periodSummaryLabel').textContent=PERIOD_LABELS[data.period];
-      $('chartSubtitle').textContent=`${PERIOD_LABELS[data.period]} • agregação por ${data.series_granularity==='hour'?'hora':data.series_granularity==='day'?'dia':data.series_granularity==='week'?'semana':'mês'}`;
-
-      $('bankroll').textContent=money(s.current_bankroll);
-      setSigned($('profit'),s.profit);$('profitCompare').innerHTML=p?comparisonHtml(s.profit,p.profit):'<span>Resultado acumulado no histórico</span>';
-      setSigned($('roi'),s.roi,value=>`${number(value)}%`);$('roiCompare').innerHTML=p?comparisonHtml(s.roi,p.roi,'points'):'<span>Retorno sobre as stakes</span>';
-      $('concluded').textContent=s.concluded;$('concludedCompare').innerHTML=p?comparisonHtml(s.concluded,p.concluded):'<span>Total consolidado</span>';
-      $('winRate').textContent=`${number(s.win_rate)}%`;$('record').textContent=`${s.greens+s.half_greens} greens • ${s.reds+s.half_reds} reds • ${s.voids} voids`;
-      $('invested').textContent=money(s.invested);$('investedCompare').innerHTML=p?comparisonHtml(s.invested,p.invested):'<span>Stake liquidada consolidada</span>';
-      $('exposure').textContent=money(s.open_exposure);$('exposurePct').textContent=`${number(s.open_exposure_pct)}% da banca`;
-      const exposureWidth=Math.max(0,Math.min(100,s.open_exposure_pct));$('exposureBar').style.width=`${exposureWidth}%`;$('exposureBar').className=`risk-fill ${s.open_exposure_pct>=15?'high':s.open_exposure_pct>=8?'medium':''}`;
-      $('drawdown').textContent=money(s.max_drawdown);$('drawdown').classList.toggle('negative',s.max_drawdown>0);$('drawdownPct').textContent=`${number(s.max_drawdown_pct)}% do pico do período`;
-      $('averageOdds').textContent=number(s.average_odds);$('averageStake').textContent=money(s.average_stake);
-      $('profitFactor').textContent=s.profit_factor===null?(s.gross_profit>0?'∞':'0,00'):number(s.profit_factor);
-      $('streak').textContent=s.streak.count?`${s.streak.kind==='WIN'?'🔥 +':'🧊 -'}${s.streak.count}`:'Sem sequência';$('pendingCount').textContent=s.pending;
-      $('generated').textContent=`Atualizado ${new Date(data.generated_at).toLocaleString('pt-BR')}`;
-
-      renderChart(data.series);renderBreakdown();renderInsights(data.insights);renderPending(data.pending_bets);renderPeriodSummary(s);renderBets();
-    }
-
-    async function load(){
-      activatePeriod();activateChart();$('loading').classList.remove('hidden');$('refresh').classList.add('loading-icon');
-      try{
-        const response=await fetch(`/api/dashboard/${TOKEN}?period=${encodeURIComponent(currentPeriod)}`,{cache:'no-store'});
-        const payload=await response.json();
-        if(!response.ok)throw new Error(payload.error||'Falha ao carregar o dashboard.');
-        render(payload);
-      }catch(error){
-        document.querySelector('main').innerHTML=`<div class="error"><h2>Não foi possível carregar</h2><p>${escapeHtml(error.message)}</p><p>Volte ao Telegram e gere um novo link com <strong>/dashboard</strong>.</p></div>`;
-      }finally{$('loading').classList.add('hidden');$('refresh').classList.remove('loading-icon');}
-    }
-
-    document.querySelectorAll('.period-button').forEach(button=>button.addEventListener('click',()=>{currentPeriod=button.dataset.period;localStorage.setItem('bankroll-period',currentPeriod);load();}));
-    document.querySelectorAll('[data-chart]').forEach(button=>button.addEventListener('click',()=>{chartMode=button.dataset.chart;localStorage.setItem('bankroll-chart',chartMode);activateChart();if(DATA)renderChart(DATA.series);}));
-    document.querySelectorAll('.breakdown-tab').forEach(button=>button.addEventListener('click',()=>{breakdownMode=button.dataset.breakdown;document.querySelectorAll('.breakdown-tab').forEach(item=>item.classList.toggle('active',item===button));renderBreakdown();}));
-    $('refresh').addEventListener('click',load);$('search').addEventListener('input',renderBets);$('statusFilter').addEventListener('change',renderBets);
-    activatePeriod();activateChart();load();
+    async function load(){activatePeriod();activateChart();$('loading').classList.remove('hidden');$('refresh').classList.add('loading-icon');try{const response=await fetch(`/api/dashboard/${TOKEN}?period=${encodeURIComponent(currentPeriod)}&v=5`,{cache:'no-store'}),payload=await response.json();if(!response.ok)throw new Error(payload.error||'Falha ao carregar o dashboard.');render(payload);}catch(error){document.querySelector('main').innerHTML=`<div class="error"><h2>Não foi possível carregar</h2><p>${escapeHtml(error.message)}</p><p>Volte ao Telegram e gere um novo link com <strong>/dashboard</strong>.</p></div>`;}finally{$('loading').classList.add('hidden');$('refresh').classList.remove('loading-icon');}}
+    document.querySelectorAll('.period-button').forEach(b=>b.addEventListener('click',()=>{currentPeriod=b.dataset.period;localStorage.setItem('bankroll-period',currentPeriod);load();}));document.querySelectorAll('[data-chart]').forEach(b=>b.addEventListener('click',()=>{chartMode=b.dataset.chart;localStorage.setItem('bankroll-chart-v5',chartMode);activateChart();if(DATA)renderChart();}));document.querySelectorAll('.breakdown-tab').forEach(b=>b.addEventListener('click',()=>{breakdownMode=b.dataset.breakdown;document.querySelectorAll('.breakdown-tab').forEach(i=>i.classList.toggle('active',i===b));renderBreakdown();}));$('refresh').addEventListener('click',load);$('search').addEventListener('input',renderBets);$('statusFilter').addEventListener('change',renderBets);window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(DATA)renderChart();},140);});activatePeriod();activateChart();load();
   </script>
 {% endif %}
 </body>
