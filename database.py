@@ -587,6 +587,12 @@ def summary(chat_id: int, period: str = "all") -> dict[str, Any]:
     row["display_name"] = settings.get("display_name") or "Apostador"
     row["max_stake_percent"] = d(settings["max_stake_percent"])
     row["max_open_exposure_percent"] = d(settings["max_open_exposure_percent"])
+    # Metadados do resumo histórico importado. Eles são úteis para explicar
+    # diferenças entre o lucro consolidado e a série temporal detalhada.
+    row["base_bets"] = int(settings.get("base_bets") or 0)
+    row["base_staked"] = d(settings.get("base_staked"))
+    row["base_profit"] = d(settings.get("base_profit"))
+    row["initial_bankroll"] = d(settings.get("initial_bankroll"))
     return row
 
 
@@ -627,21 +633,82 @@ def _series_granularity(period: str) -> str:
     return "month"
 
 
-def _performance_series(chat_id: int, period: str) -> tuple[list[dict[str, Any]], Decimal, Decimal]:
-    """Série leve e adaptativa: hora, dia, semana ou mês conforme o período."""
-    start = _period_start(period)
+def _floor_bucket(value: datetime, granularity: str) -> datetime:
+    """Arredonda um datetime local para o começo do bucket."""
+    local = value.astimezone(TIMEZONE)
+    if granularity == "hour":
+        return local.replace(minute=0, second=0, microsecond=0)
+    if granularity == "day":
+        return local.replace(hour=0, minute=0, second=0, microsecond=0)
+    if granularity == "week":
+        day_start = local.replace(hour=0, minute=0, second=0, microsecond=0)
+        return day_start - timedelta(days=day_start.weekday())
+    if granularity == "month":
+        return local.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    raise ValueError(f"Granularidade inválida: {granularity}")
+
+
+def _advance_bucket(value: datetime, granularity: str) -> datetime:
+    if granularity == "hour":
+        return value + timedelta(hours=1)
+    if granularity == "day":
+        return value + timedelta(days=1)
+    if granularity == "week":
+        return value + timedelta(days=7)
+    if granularity == "month":
+        if value.month == 12:
+            return value.replace(year=value.year + 1, month=1)
+        return value.replace(month=value.month + 1)
+    raise ValueError(f"Granularidade inválida: {granularity}")
+
+
+def _bucket_label(value: datetime, granularity: str) -> str:
+    if granularity == "hour":
+        return value.strftime("%d/%m %Hh")
+    if granularity == "day":
+        return value.strftime("%d/%m")
+    if granularity == "week":
+        return f"Sem. {value.strftime('%d/%m')}"
+    month_names = (
+        "jan", "fev", "mar", "abr", "mai", "jun",
+        "jul", "ago", "set", "out", "nov", "dez",
+    )
+    return f"{month_names[value.month - 1]}/{str(value.year)[-2:]}"
+
+
+def _localize_db_bucket(value: datetime) -> datetime:
+    """O PostgreSQL devolve ``timestamp without time zone`` após AT TIME ZONE."""
+    if value.tzinfo is None:
+        return value.replace(tzinfo=TIMEZONE)
+    return value.astimezone(TIMEZONE)
+
+
+def _performance_series(chat_id: int, period: str) -> dict[str, Any]:
+    """Gera uma curva conciliada, contínua e leve para o dashboard.
+
+    Regras importantes:
+    - performance usa a data de liquidação, não a data de cadastro;
+    - depósitos e saques alteram o saldo, mas não o lucro de apostas;
+    - o primeiro ponto é o saldo de abertura, evitando o erro visual em que
+      o gráfico começava depois do primeiro lucro do período;
+    - buckets sem atividade são preenchidos com zero para preservar a escala
+      real do tempo.
+    """
+    start_utc = _period_start(period)
     granularity = _series_granularity(period)
+    now_local = datetime.now(TIMEZONE)
+
     bet_params: list[Any] = [granularity, TIMEZONE_NAME, chat_id]
     bet_filter = ""
-    if start is not None:
+    if start_utc is not None:
         bet_filter = " AND COALESCE(settled_at, bet_date) >= %s"
-        bet_params.append(start)
+        bet_params.append(start_utc)
 
     transaction_params: list[Any] = [granularity, TIMEZONE_NAME, chat_id]
     transaction_filter = ""
-    if start is not None:
+    if start_utc is not None:
         transaction_filter = " AND created_at >= %s"
-        transaction_params.append(start)
+        transaction_params.append(start_utc)
 
     with get_conn() as conn:
         with conn.cursor() as cur:
@@ -651,7 +718,9 @@ def _performance_series(chat_id: int, period: str) -> tuple[list[dict[str, Any]]
                     SELECT
                         date_trunc(%s, COALESCE(settled_at, bet_date) AT TIME ZONE %s) AS bucket,
                         COALESCE(SUM(profit),0) AS profit,
-                        0::numeric AS transaction_effect
+                        0::numeric AS transaction_effect,
+                        COUNT(*) AS bets,
+                        COALESCE(SUM(stake),0) AS invested
                     FROM bets
                     WHERE chat_id=%s AND is_deleted=FALSE AND status<>'PENDING' {bet_filter}
                     GROUP BY bucket
@@ -661,48 +730,131 @@ def _performance_series(chat_id: int, period: str) -> tuple[list[dict[str, Any]]
                     SELECT
                         date_trunc(%s, created_at AT TIME ZONE %s) AS bucket,
                         0::numeric AS profit,
-                        COALESCE(SUM({_transaction_effect_sql()}),0) AS transaction_effect
+                        COALESCE(SUM({_transaction_effect_sql()}),0) AS transaction_effect,
+                        0::bigint AS bets,
+                        0::numeric AS invested
                     FROM bankroll_transactions
                     WHERE chat_id=%s {transaction_filter}
                     GROUP BY bucket
                 )
-                SELECT bucket, COALESCE(SUM(profit),0) AS profit,
-                       COALESCE(SUM(transaction_effect),0) AS transaction_effect
+                SELECT
+                    bucket,
+                    COALESCE(SUM(profit),0) AS profit,
+                    COALESCE(SUM(transaction_effect),0) AS transaction_effect,
+                    COALESCE(SUM(bets),0) AS bets,
+                    COALESCE(SUM(invested),0) AS invested
                 FROM movements
                 GROUP BY bucket
                 ORDER BY bucket;
                 """,
                 bet_params + transaction_params,
             )
-            rows = [dict(r) for r in cur.fetchall()]
+            raw_rows = [dict(row) for row in cur.fetchall()]
 
-    balance = _bankroll_before(chat_id, start)
-    performance_balance = balance
+    rows_by_bucket: dict[datetime, dict[str, Any]] = {}
+    for row in raw_rows:
+        bucket = _localize_db_bucket(row["bucket"])
+        rows_by_bucket[bucket] = row
+
+    if start_utc is not None:
+        opening_at = start_utc.astimezone(TIMEZONE)
+        first_bucket = _floor_bucket(opening_at, granularity)
+        opening_balance = _bankroll_before(chat_id, start_utc)
+    elif rows_by_bucket:
+        first_bucket = min(rows_by_bucket)
+        opening_at = first_bucket
+        opening_balance = _bankroll_before(chat_id, None)
+    else:
+        first_bucket = _floor_bucket(now_local, granularity)
+        opening_at = first_bucket
+        opening_balance = _bankroll_before(chat_id, None)
+
+    last_bucket = _floor_bucket(now_local, granularity)
+    balance = money(opening_balance)
+    performance_balance = money(opening_balance)
+    cumulative_profit = Decimal("0")
+    total_profit = Decimal("0")
+    total_transactions = Decimal("0")
+    total_invested = Decimal("0")
+    total_bets = 0
     peak = performance_balance
     max_drawdown = Decimal("0")
-    output: list[dict[str, Any]] = []
+    activity_profits: list[Decimal] = []
+    points: list[dict[str, Any]] = []
 
-    for row in rows:
-        profit = money(row["profit"])
-        transaction_effect = money(row["transaction_effect"])
+    cursor = first_bucket
+    safety = 0
+    while cursor <= last_bucket and safety < 2400:
+        safety += 1
+        row = rows_by_bucket.get(cursor, {})
+        profit = money(row.get("profit", 0))
+        transaction_effect = money(row.get("transaction_effect", 0))
+        invested = money(row.get("invested", 0))
+        bets = int(row.get("bets") or 0)
+
+        total_profit += profit
+        total_transactions += transaction_effect
+        total_invested += invested
+        total_bets += bets
+        cumulative_profit += profit
         balance = money(balance + profit + transaction_effect)
+
+        # Drawdown deve medir apenas performance de apostas. Aportes e saques
+        # não representam ganho ou perda operacional.
         performance_balance = money(performance_balance + profit)
         peak = max(peak, performance_balance)
-        drawdown = peak - performance_balance
-        max_drawdown = max(max_drawdown, drawdown)
-        bucket = row["bucket"]
-        output.append(
+        max_drawdown = max(max_drawdown, peak - performance_balance)
+        if bets:
+            activity_profits.append(profit)
+
+        next_bucket = _advance_bucket(cursor, granularity)
+        point_at = min(next_bucket, now_local)
+        points.append(
             {
-                "bucket": bucket.isoformat(),
+                "bucket_start": cursor.isoformat(),
+                "bucket_end": point_at.isoformat(),
+                "point_at": point_at.isoformat(),
+                "label": _bucket_label(cursor, granularity),
                 "profit": float(profit),
                 "transaction_effect": float(transaction_effect),
                 "net_change": float(money(profit + transaction_effect)),
+                "invested": float(invested),
+                "bets": bets,
+                "cumulative_profit": float(money(cumulative_profit)),
                 "balance": float(balance),
+                "has_activity": bool(bets or transaction_effect),
             }
         )
+        cursor = next_bucket
 
-    drawdown_pct = (max_drawdown / peak * 100) if peak else Decimal("0")
-    return output, money(max_drawdown), drawdown_pct
+    closing_balance = money(balance)
+    net_change = money(closing_balance - opening_balance)
+    expected_change = money(total_profit + total_transactions)
+    reconciliation_difference = money(net_change - expected_change)
+    drawdown_pct = (max_drawdown / peak * 100) if peak > 0 else Decimal("0")
+
+    best_interval = max(activity_profits) if activity_profits else Decimal("0")
+    worst_interval = min(activity_profits) if activity_profits else Decimal("0")
+
+    return {
+        "points": points,
+        "granularity": granularity,
+        "opening_at": opening_at.isoformat(),
+        "closing_at": now_local.isoformat(),
+        "opening_balance": float(money(opening_balance)),
+        "closing_balance": float(closing_balance),
+        "bet_profit": float(money(total_profit)),
+        "transaction_effect": float(money(total_transactions)),
+        "net_change": float(net_change),
+        "invested": float(money(total_invested)),
+        "bets": total_bets,
+        "best_interval": float(money(best_interval)),
+        "worst_interval": float(money(worst_interval)),
+        "max_drawdown": float(money(max_drawdown)),
+        "max_drawdown_pct": float(drawdown_pct),
+        "has_activity": bool(total_bets or total_transactions),
+        "reconciliation_difference": float(reconciliation_difference),
+    }
 
 
 def _breakdown(chat_id: int, period: str, column: str, limit: int = 8) -> list[dict[str, Any]]:
@@ -843,72 +995,134 @@ def _current_streak(chat_id: int) -> dict[str, Any]:
 def dashboard_data(chat_id: int, period: str = "30") -> dict[str, Any]:
     if period not in VALID_DASHBOARD_PERIODS:
         period = "30"
+
     data = summary(chat_id, period)
-    series, max_drawdown, max_drawdown_pct = _performance_series(chat_id, period)
-    recent = get_recent_bets(chat_id, 20)
-    pending = get_pending_bets(chat_id, 8)
-    sports = _breakdown(chat_id, period, "sport")
-    tipsters = _breakdown(chat_id, period, "tipster")
-    bookmakers = _breakdown(chat_id, period, "bookmaker")
+    chart = _performance_series(chat_id, period)
+    recent = get_recent_bets(chat_id, 30)
+    pending = get_pending_bets(chat_id, 10)
+    sports = _breakdown(chat_id, period, "sport", limit=10)
+    tipsters = _breakdown(chat_id, period, "tipster", limit=10)
+    bookmakers = _breakdown(chat_id, period, "bookmaker", limit=10)
     odds_ranges = _odds_breakdown(chat_id, period)
     previous = _previous_comparison(chat_id, period)
     streak = _current_streak(chat_id)
+
     bankroll = d(data["current_bankroll"])
     open_exposure = d(data["open_exposure"])
     exposure_pct = (open_exposure / bankroll * 100) if bankroll > 0 else Decimal("0")
+    max_drawdown = d(chart["max_drawdown"])
+    max_drawdown_pct = d(chart["max_drawdown_pct"])
 
     insights: list[dict[str, str]] = []
-    if exposure_pct > d(data["max_open_exposure_percent"]):
+    concluded = int(data["concluded"] or 0)
+
+    if concluded == 0:
+        insights.append(
+            {
+                "level": "info",
+                "title": "Sem apostas liquidadas",
+                "text": "O período selecionado ainda não possui resultados. Pendentes não entram no lucro nem no ROI.",
+            }
+        )
+    elif concluded < 20:
         insights.append(
             {
                 "level": "warning",
-                "title": "Exposição acima do limite",
-                "text": f"A exposição aberta está em {fmt_num(exposure_pct)}% da banca. Seu limite configurado é {fmt_num(data['max_open_exposure_percent'])}%.",
+                "title": "Amostra pequena",
+                "text": f"Há {concluded} aposta(s) concluída(s) no período. Interprete ROI e taxa de acerto com cautela.",
             }
         )
-    if d(data["roi"]) < 0 and int(data["concluded"] or 0) >= 10:
+
+    if exposure_pct > d(data["max_open_exposure_percent"]):
+        insights.append(
+            {
+                "level": "danger",
+                "title": "Exposição acima do limite",
+                "text": f"A exposição aberta está em {fmt_num(exposure_pct)}% da banca. O limite configurado é {fmt_num(data['max_open_exposure_percent'])}%.",
+            }
+        )
+    elif exposure_pct >= d(data["max_open_exposure_percent"]) * Decimal("0.70") and open_exposure > 0:
+        insights.append(
+            {
+                "level": "warning",
+                "title": "Exposição próxima do limite",
+                "text": f"As apostas pendentes já comprometem {fmt_num(exposure_pct)}% da banca.",
+            }
+        )
+
+    if max_drawdown_pct >= Decimal("10"):
+        insights.append(
+            {
+                "level": "warning",
+                "title": "Drawdown relevante",
+                "text": f"A maior queda desde um pico foi de {fmt_money(max_drawdown, data['currency'])} ({fmt_num(max_drawdown_pct)}%).",
+            }
+        )
+
+    if d(data["roi"]) < 0 and concluded >= 10:
         insights.append(
             {
                 "level": "danger",
                 "title": "ROI negativo no período",
-                "text": f"O ROI está em {fmt_num(data['roi'])}%. Avalie mercados com pior resultado e reduza stakes fora do padrão.",
+                "text": f"O ROI está em {fmt_num(data['roi'])}%. Revise mercados com pior resultado e o tamanho das stakes.",
             }
         )
-    if sports:
-        best = max(sports, key=lambda item: item["profit"])
-        worst = min(sports, key=lambda item: item["profit"])
+
+    qualified_sports = [item for item in sports if int(item["bets"]) >= 3]
+    if qualified_sports:
+        best = max(qualified_sports, key=lambda item: item["profit"])
+        worst = min(qualified_sports, key=lambda item: item["profit"])
         if best["profit"] > 0:
             insights.append(
                 {
                     "level": "success",
-                    "title": "Melhor desempenho",
-                    "text": f"{best['label']} lidera o período com {fmt_money(best['profit'], data['currency'])} e ROI de {fmt_num(best['roi'])}%.",
+                    "title": "Melhor categoria com amostra mínima",
+                    "text": f"{best['label']} gerou {fmt_money(best['profit'], data['currency'])} em {best['bets']} aposta(s), com ROI de {fmt_num(best['roi'])}%.",
                 }
             )
         if worst["profit"] < 0:
             insights.append(
                 {
                     "level": "warning",
-                    "title": "Ponto de atenção",
-                    "text": f"{worst['label']} concentra a maior perda: {fmt_money(worst['profit'], data['currency'])}.",
+                    "title": "Maior ponto de atenção",
+                    "text": f"{worst['label']} acumula {fmt_money(worst['profit'], data['currency'])} em {worst['bets']} aposta(s).",
                 }
             )
-    if previous and int(data["concluded"] or 0) > 0:
-        profit_change = d(data["profit"]) - d(previous["profit"])
-        if profit_change > 0:
+
+    if previous and concluded > 0:
+        profit_delta = d(data["profit"]) - d(previous["profit"])
+        if profit_delta > 0:
             insights.append(
                 {
                     "level": "success",
-                    "title": "Evolução contra o período anterior",
-                    "text": f"Seu lucro melhorou {fmt_money(profit_change, data['currency'])} em uma janela equivalente.",
+                    "title": "Melhora contra a janela anterior",
+                    "text": f"O resultado aumentou {fmt_money(profit_delta, data['currency'])} em comparação com um período equivalente.",
                 }
             )
+        elif profit_delta < 0:
+            insights.append(
+                {
+                    "level": "warning",
+                    "title": "Queda contra a janela anterior",
+                    "text": f"O resultado caiu {fmt_money(abs(profit_delta), data['currency'])} em comparação com um período equivalente.",
+                }
+            )
+
+    if period == "all" and d(data.get("base_profit")) != 0:
+        insights.append(
+            {
+                "level": "info",
+                "title": "Histórico consolidado no saldo inicial",
+                "text": f"O gráfico parte de um saldo que já inclui {fmt_money(data['base_profit'], data['currency'])} de resultado histórico sem datas detalhadas.",
+            }
+        )
+
     if not insights:
         insights.append(
             {
                 "level": "info",
-                "title": "Dados em construção",
-                "text": "Registre e liquide mais apostas para liberar comparações e diagnósticos mais fortes.",
+                "title": "Dados consistentes",
+                "text": "Nenhum alerta relevante foi identificado para o período selecionado.",
             }
         )
 
@@ -928,13 +1142,21 @@ def dashboard_data(chat_id: int, period: str = "30") -> dict[str, Any]:
         }
 
     profit_factor = data.get("profit_factor")
+    base_profit = d(data.get("base_profit"))
+    detailed_profit = d(chart["bet_profit"])
+    consolidated_difference = money(d(data["profit"]) - detailed_profit)
+
     return {
+        "api_version": 5,
         "generated_at": datetime.now(TIMEZONE).isoformat(),
         "period": period,
-        "series_granularity": _series_granularity(period),
-        "profile": {"display_name": data["display_name"], "currency": data["currency"]},
+        "series_granularity": chart["granularity"],
+        "profile": {
+            "display_name": data["display_name"],
+            "currency": data["currency"],
+        },
         "summary": {
-            "concluded": int(data["concluded"] or 0),
+            "concluded": concluded,
             "pending": int(data["pending"] or 0),
             "greens": int(data["greens"] or 0),
             "reds": int(data["reds"] or 0),
@@ -943,6 +1165,9 @@ def dashboard_data(chat_id: int, period: str = "30") -> dict[str, Any]:
             "voids": int(data["voids"] or 0),
             "invested": float(money(data["invested"])),
             "profit": float(money(data["profit"])),
+            "detailed_profit": float(money(detailed_profit)),
+            "consolidated_difference": float(consolidated_difference),
+            "base_profit": float(money(base_profit)),
             "gross_profit": float(money(data["gross_profit"])),
             "gross_loss": float(money(data["gross_loss"])),
             "profit_factor": float(d(profit_factor)) if profit_factor is not None else None,
@@ -958,7 +1183,8 @@ def dashboard_data(chat_id: int, period: str = "30") -> dict[str, Any]:
             "streak": streak,
         },
         "previous": previous,
-        "series": series,
+        "chart": chart,
+        "series": chart["points"],
         "breakdowns": {
             "sports": sports,
             "tipsters": tipsters,
@@ -967,8 +1193,9 @@ def dashboard_data(chat_id: int, period: str = "30") -> dict[str, Any]:
         },
         "recent_bets": [serialize_bet(row) for row in recent],
         "pending_bets": [serialize_bet(row) for row in pending],
-        "insights": insights[:5],
+        "insights": insights[:6],
     }
+
 
 def risk_warnings(chat_id: int, stake: Decimal) -> list[str]:
     data = summary(chat_id, "all")
