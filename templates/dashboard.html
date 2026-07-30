@@ -3,183 +3,289 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#071633">
-  <title>Bankroll Pro</title>
+  <meta name="theme-color" content="#06152f">
+  <title>Bankroll Intelligence</title>
   <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
   <style>
     :root{
-      --nav:#071633;--nav2:#0d234b;--bg:#f3f7f9;--card:#fff;--soft:#f8fbfc;
-      --text:#101828;--muted:#667085;--line:#dbe5ea;--green:#079447;--green2:#16b364;
+      --nav:#06152f;--nav2:#0b2552;--bg:#f2f6f8;--card:#fff;--card2:#f8fbfc;
+      --text:#101828;--muted:#667085;--line:#dce6eb;--green:#079447;--green2:#12b76a;
       --red:#d92d20;--amber:#dc8b00;--blue:#1570ef;--purple:#6941c6;
-      --shadow:0 10px 34px rgba(7,22,51,.07);--radius:18px;
+      --shadow:0 12px 40px rgba(6,21,47,.075);--radius:20px;
     }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
     body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
-    button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+    button,input{font:inherit}.hidden{display:none!important}.mono{font-variant-numeric:tabular-nums}.positive{color:var(--green)!important}.negative{color:var(--red)!important}.muted{color:var(--muted)}
     .layout{min-height:100vh;display:grid;grid-template-columns:248px minmax(0,1fr)}
-    .sidebar{position:sticky;top:0;height:100vh;padding:24px 18px;background:linear-gradient(180deg,var(--nav),#061127);color:#fff;overflow:hidden}
-    .brand{display:flex;align-items:center;gap:12px;font-size:19px;font-weight:850;letter-spacing:-.02em}.brand-mark{display:grid;place-items:center;width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,#1cda74,#1877f2);box-shadow:0 8px 22px rgba(24,119,242,.26);font-size:21px}.brand small{display:block;color:#a8bbd7;font-size:11px;font-weight:550;letter-spacing:0}
-    .nav{display:grid;gap:7px;margin-top:32px}.nav a{display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;color:#cbd8e9;text-decoration:none;font-weight:650}.nav a:hover,.nav a.active{background:var(--nav2);color:#fff}
-    .side-status{position:absolute;left:18px;right:18px;bottom:20px;padding:13px;border:1px solid rgba(255,255,255,.11);border-radius:14px;background:rgba(255,255,255,.06);color:#b9c9de;font-size:12px}.side-status strong{display:block;margin-bottom:3px;color:#fff}
-    main{min-width:0;padding:26px 28px 38px}.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}h1{margin:0 0 4px;font-size:30px;line-height:1.15;letter-spacing:-.035em}.muted{color:var(--muted)}
-    .top-actions{display:flex;align-items:center;gap:9px}.refresh-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);box-shadow:var(--shadow);font-weight:750}.refresh-button.loading-icon span{animation:spin .8s linear infinite}
-    .period-shell{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px;padding:10px 12px;border:1px solid var(--line);border-radius:15px;background:var(--card);box-shadow:var(--shadow)}.period-title{font-weight:750;white-space:nowrap}.periods{display:flex;gap:6px;min-width:0;overflow:auto;scrollbar-width:none}.periods::-webkit-scrollbar{display:none}.period-button{flex:none;border:0;border-radius:10px;padding:8px 12px;background:transparent;color:var(--muted);font-weight:750}.period-button:hover{background:var(--soft);color:var(--text)}.period-button.active{background:var(--nav);color:#fff}
-    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.card{min-width:0;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow)}.full{grid-column:1/-1}.span-2{grid-column:span 2}
-    .metric{position:relative;overflow:hidden}.metric::after{content:"";position:absolute;right:-24px;top:-31px;width:92px;height:92px;border-radius:50%;background:var(--accent-soft,#eef4ff)}.metric-head{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px}.metric-label{color:var(--muted);font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.045em}.metric-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--accent-soft,#eef4ff);color:var(--accent,var(--blue));font-size:17px}.metric-value{position:relative;z-index:1;margin-top:13px;font-size:27px;font-weight:860;letter-spacing:-.035em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric-foot{position:relative;z-index:1;display:flex;align-items:center;gap:7px;min-height:21px;margin-top:5px;color:var(--muted);font-size:12px}.trend{display:inline-flex;align-items:center;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:850}.trend.up{background:#dcfae6;color:#067647}.trend.down{background:#fee4e2;color:#b42318}.trend.flat{background:#eef2f6;color:#475467}.positive{color:var(--green)!important}.negative{color:var(--red)!important}.warning-text{color:var(--amber)!important}
-    .quality-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;padding:0;overflow:hidden}.quality-item{padding:15px 17px;border-right:1px solid var(--line)}.quality-item:last-child{border-right:0}.quality-label{color:var(--muted);font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.04em}.quality-value{margin-top:5px;font-size:18px;font-weight:830}
-    .section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}.section-head h2{margin:0;font-size:18px;letter-spacing:-.02em}.section-sub{margin-top:2px;color:var(--muted);font-size:12px}.head-badges{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:var(--soft);color:var(--muted);font-size:10px;font-weight:800}.badge.ok{border-color:#b7ebcb;background:#f2fcf6;color:#067647}
-    .segmented{display:inline-flex;gap:3px;padding:3px;border-radius:11px;background:#eef3f5}.segment{border:0;border-radius:8px;padding:7px 10px;background:transparent;color:var(--muted);font-size:12px;font-weight:800;white-space:nowrap}.segment.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(16,24,40,.08)}
-    .reconciliation{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--muted);font-size:12px}.reconciliation strong{color:var(--text)}.reconciliation .equals{font-weight:900;color:var(--green)}
-    .chart-shell{position:relative;height:360px;border:1px solid #e8eef1;border-radius:15px;background:linear-gradient(180deg,#fbfdfd,#fff);overflow:hidden}.chart-shell svg{display:block;width:100%;height:100%}.chart-empty{display:grid;place-items:center;height:100%;padding:24px;color:var(--muted);text-align:center}.chart-tooltip{position:absolute;z-index:5;min-width:185px;max-width:230px;padding:11px 12px;border-radius:12px;background:#101828;color:#fff;box-shadow:0 12px 30px rgba(16,24,40,.26);font-size:11px;pointer-events:none;transform:translate(-50%,-108%)}.chart-tooltip strong{display:block;margin:3px 0 5px;font-size:14px}.chart-tooltip .tooltip-grid{display:grid;grid-template-columns:1fr auto;gap:2px 10px;color:#d0d5dd}.chart-tooltip .tooltip-grid b{color:#fff;text-align:right}.chart-crosshair{stroke:#98a2b3;stroke-width:1;stroke-dasharray:3 4}.axis-label{fill:#8793a4;font-size:11px}.grid-line{stroke:#e7edf0;stroke-width:1}.zero-line{stroke:#98a2b3;stroke-width:1.2;stroke-dasharray:4 4}.chart-line{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.chart-dot{fill:var(--card);stroke-width:2}.transaction-dot{fill:var(--blue);stroke:#fff;stroke-width:2}.hover-zone{fill:transparent;cursor:crosshair}
-    .chart-legend{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:11px}.legend-item{display:inline-flex;align-items:center;gap:6px}.legend-dot{width:9px;height:9px;border-radius:50%;background:var(--green)}.legend-dot.blue{background:var(--blue)}.legend-dot.red{background:var(--red)}
-    .chart-summary{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px;margin-top:11px}.chart-stat{padding:10px 11px;border-radius:12px;background:var(--soft)}.chart-stat span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.035em}.chart-stat strong{display:block;margin-top:3px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chart-note{margin-top:10px;padding:10px 12px;border-left:3px solid var(--blue);border-radius:8px;background:#f5f8ff;color:#475467;font-size:11px}
-    .breakdown-tabs{display:flex;gap:4px;overflow:auto;margin-bottom:13px;scrollbar-width:none}.breakdown-tabs::-webkit-scrollbar{display:none}.breakdown-tab{flex:none;border:1px solid var(--line);border-radius:999px;padding:7px 11px;background:var(--card);color:var(--muted);font-size:11px;font-weight:800}.breakdown-tab.active{border-color:var(--nav);background:var(--nav);color:#fff}.bar-list{display:grid;gap:12px}.bar-row{display:grid;grid-template-columns:minmax(120px,1.15fr) 2fr minmax(110px,auto);gap:11px;align-items:center}.bar-label{min-width:0}.bar-label strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bar-label small{color:var(--muted)}.diverge-track{position:relative;height:12px;border-radius:999px;background:#edf2f4;overflow:hidden}.diverge-track::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:#cfd9df}.diverge-fill{position:absolute;top:1px;bottom:1px;border-radius:999px;background:linear-gradient(90deg,#079447,#1bc46b)}.diverge-fill.neg{background:linear-gradient(90deg,#f04438,#d92d20)}.bar-value{text-align:right;font-variant-numeric:tabular-nums}.bar-value strong{display:block}.bar-value small{color:var(--muted)}
-    .insights{display:grid;gap:10px}.insight{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:12px;border:1px solid #e6ebef;border-radius:13px;background:#fbfcfd}.insight-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#eef2f6;font-weight:900}.insight.success{border-color:#b7ebcb;background:#f4fcf7}.insight.success .insight-icon{background:#dcfae6;color:#067647}.insight.warning{border-color:#f5d7a2;background:#fffbf3}.insight.warning .insight-icon{background:#fff0cf;color:#a15c00}.insight.danger{border-color:#f5c0bc;background:#fff8f7}.insight.danger .insight-icon{background:#fee4e2;color:#b42318}.insight strong{display:block;margin-bottom:2px;font-size:13px}.insight p{margin:0;color:#475467;font-size:12px}
-    .pending-list{display:grid;gap:9px}.pending-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft)}.pending-item strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pending-item small{color:var(--muted)}.pending-amount{text-align:right;font-weight:820}.pending-amount small{display:block;font-weight:500}.risk-bar{height:7px;margin-top:9px;border-radius:999px;background:#edf2f4;overflow:hidden}.risk-fill{height:100%;border-radius:999px;background:var(--green)}.risk-fill.medium{background:var(--amber)}.risk-fill.high{background:var(--red)}
-    .table-tools{display:flex;gap:9px;margin-bottom:11px}.search,.filter{min-height:40px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--text);outline:none}.search{flex:1;padding:0 12px}.filter{padding:0 10px}.search:focus,.filter:focus{border-color:#84adff;box-shadow:0 0 0 3px rgba(21,112,239,.10)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px}table{width:100%;border-collapse:collapse;min-width:840px}th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}th{position:sticky;top:0;background:#f8fbfc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.035em}tr:last-child td{border-bottom:0}.pill{display:inline-flex;padding:4px 8px;border-radius:999px;background:#eef2f6;color:#475467;font-size:10px;font-weight:850}.pill.GREEN,.pill.HALF_GREEN{background:#dcfae6;color:#067647}.pill.RED,.pill.HALF_RED{background:#fee4e2;color:#b42318}.pill.PENDING{background:#fff1cc;color:#9b5b00}.empty{padding:20px;color:var(--muted);text-align:center}
-    .loading{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(243,247,249,.88);backdrop-filter:blur(3px)}.loader-card{display:flex;align-items:center;gap:11px;padding:15px 17px;border:1px solid var(--line);border-radius:14px;background:var(--card);box-shadow:var(--shadow);font-weight:750}.spinner{width:25px;height:25px;border:3px solid #dbe5ea;border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.error{max-width:650px;margin:80px auto;padding:24px;border:1px solid #fecaca;border-radius:18px;background:var(--card);color:#991b1b}
-    @media(prefers-color-scheme:dark){:root{--bg:#0b1220;--card:#111a2b;--soft:#162135;--text:#f2f4f7;--muted:#98a2b3;--line:#263449;--shadow:0 10px 34px rgba(0,0,0,.20)}.chart-shell{background:linear-gradient(180deg,#111b2a,#101827)}.grid-line{stroke:#263449}.axis-label{fill:#98a2b3}.reconciliation,.chart-stat,.pending-item{background:var(--soft)}.chart-note{background:#14223a;color:#b8c3d6}.table-wrap th{background:#162135}.insight{background:#131e30}.insight p{color:#b8c3d6}.period-button:hover{background:#1a2940}}
-    @media(max-width:1120px){.layout{grid-template-columns:82px minmax(0,1fr)}.sidebar{padding:20px 12px}.brand{justify-content:center}.brand span,.nav span,.side-status{display:none}.nav a{justify-content:center;font-size:18px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-summary{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:680px){.layout{display:block}.sidebar{position:static;display:flex;align-items:center;justify-content:space-between;height:auto;padding:10px 14px}.brand{justify-content:flex-start}.brand span{display:block}.brand-mark{width:36px;height:36px}.nav{display:flex;margin:0}.nav a{display:none}.nav a.active{display:flex;padding:9px 11px}.topbar{align-items:center}.topbar h1{font-size:24px}.refresh-label{display:none}.period-shell{display:block;padding:10px}.period-title{display:none}.periods{width:100%}.period-button{padding:8px 11px}.grid{grid-template-columns:1fr}.span-2,.full{grid-column:span 1}.quality-strip{grid-template-columns:repeat(2,1fr)}.quality-item{border-top:1px solid var(--line)}.quality-item:nth-child(1),.quality-item:nth-child(2){border-top:0}.quality-item:nth-child(even){border-right:0}.quality-item:last-child{grid-column:1/-1;border-right:0}.section-head{display:block}.head-badges{justify-content:flex-start;margin-top:8px}.segmented{margin-top:10px;width:100%;overflow:auto}.segment{flex:1}.chart-shell{height:300px}.chart-summary{grid-template-columns:repeat(2,1fr)}.bar-row{grid-template-columns:minmax(105px,1fr) 1.2fr auto;gap:8px}.bar-value small{display:none}.table-tools{display:block}.filter{width:100%;margin-top:8px}.search{width:100%}main{padding:15px}.card{padding:15px}.metric-value{font-size:25px}.reconciliation{justify-content:flex-start}}
+    .sidebar{position:sticky;top:0;height:100vh;padding:24px 18px;background:linear-gradient(180deg,var(--nav),#041027);color:#fff;overflow:hidden}
+    .brand{display:flex;align-items:center;gap:12px;font-size:19px;font-weight:850;letter-spacing:-.02em}.brand-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:15px;background:linear-gradient(135deg,#12b76a,#1570ef);box-shadow:0 9px 26px rgba(21,112,239,.28);font-size:21px}.brand small{display:block;color:#a9bdd9;font-size:11px;font-weight:550;letter-spacing:0}
+    .nav{display:grid;gap:7px;margin-top:32px}.nav a{display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;color:#cbd8e9;text-decoration:none;font-weight:700}.nav a:hover,.nav a.active{background:var(--nav2);color:#fff}
+    .side-box{position:absolute;left:18px;right:18px;bottom:20px;padding:14px;border:1px solid rgba(255,255,255,.11);border-radius:15px;background:rgba(255,255,255,.06);color:#bed0e6;font-size:12px}.side-box strong{display:block;color:#fff;margin-bottom:5px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#12b76a;margin-right:7px;box-shadow:0 0 0 4px rgba(18,183,106,.13)}
+    main{min-width:0;padding:28px 30px 44px}.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}.eyebrow{color:var(--blue);font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}h1{margin:2px 0 4px;font-size:32px;line-height:1.1;letter-spacing:-.04em}.top-actions{display:flex;align-items:center;gap:9px}.icon-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);box-shadow:var(--shadow);font-weight:780;cursor:pointer}.icon-button:disabled{opacity:.55;cursor:not-allowed}.spin{display:inline-block;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .control-bar{position:sticky;top:10px;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;padding:11px 13px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.92);box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+    .period-copy strong{display:block;font-size:13px}.period-copy small{color:var(--muted)}.periods{display:flex;gap:6px;min-width:0;overflow:auto;scrollbar-width:none}.periods::-webkit-scrollbar{display:none}.period-btn{flex:none;border:0;border-radius:10px;padding:9px 12px;background:transparent;color:var(--muted);font-weight:800;cursor:pointer}.period-btn:hover{background:var(--card2);color:var(--text)}.period-btn.active{background:var(--nav);color:#fff;box-shadow:0 6px 15px rgba(6,21,47,.16)}
+    .notice{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px;padding:13px 15px;border:1px solid #cfe3ef;border-radius:15px;background:#f4fbff;color:#36536a}.notice strong{color:#143f5a}.badge-row{display:flex;flex-wrap:wrap;gap:7px}.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 9px;background:#fff;border:1px solid #d7e8f2;font-size:11px;font-weight:800;white-space:nowrap}.badge.ok{color:var(--green)}.badge.warn{color:var(--amber)}
+    .kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;margin-bottom:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.kpi{min-height:146px;padding:17px;display:flex;flex-direction:column;justify-content:space-between}.kpi-top{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#344054;font-weight:760}.kpi-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--card2);font-size:16px}.kpi-value{margin-top:16px;font-size:27px;line-height:1;font-weight:900;letter-spacing:-.04em;white-space:nowrap}.kpi-foot{margin-top:9px;color:var(--muted);font-size:12px}.delta{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;font-weight:850}.delta.up{color:var(--green)}.delta.down{color:var(--red)}.delta.flat{color:var(--muted)}
+    .main-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,.7fr);gap:18px;margin-bottom:18px}.section-card{padding:19px}.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}.section-head h2{margin:0;font-size:17px;letter-spacing:-.02em}.section-head p{margin:3px 0 0;color:var(--muted);font-size:12px}.segmented{display:flex;gap:4px;padding:4px;border-radius:12px;background:#eef3f6}.segmented button{border:0;border-radius:9px;padding:7px 10px;background:transparent;color:var(--muted);font-size:12px;font-weight:820;cursor:pointer}.segmented button.active{background:#fff;color:var(--text);box-shadow:0 2px 8px rgba(6,21,47,.1)}
+    .chart-wrap{position:relative;height:360px;border:1px solid #e4ecef;border-radius:16px;background:linear-gradient(180deg,#fbfdfe,#f7fafb);overflow:hidden}.chart-wrap canvas{display:block;width:100%;height:100%}.chart-tooltip{position:absolute;pointer-events:none;min-width:172px;padding:10px 11px;border-radius:12px;background:#071633;color:#fff;box-shadow:0 12px 28px rgba(7,22,51,.28);font-size:11px;opacity:0;transform:translate(-50%,-110%);transition:opacity .08s}.chart-tooltip.show{opacity:1}.chart-tooltip strong{display:block;margin-bottom:5px;font-size:12px}.chart-tooltip span{display:flex;justify-content:space-between;gap:14px;color:#c6d6e9}.chart-tooltip b{color:#fff}
+    .chart-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.mini-stat{padding:12px 13px;border-radius:13px;background:var(--card2);border:1px solid #edf2f4}.mini-stat small{display:block;color:var(--muted);margin-bottom:4px}.mini-stat strong{font-size:15px}
+    .health-grid{display:grid;gap:12px}.health-item{padding:14px;border:1px solid #e4ecef;border-radius:15px;background:var(--card2)}.health-line{display:flex;align-items:center;justify-content:space-between;gap:10px}.health-line strong{font-size:15px}.meter{height:8px;margin-top:10px;border-radius:999px;background:#e5edf0;overflow:hidden}.meter span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#12b76a,#f79009,#d92d20)}.ring-row{display:flex;align-items:center;gap:14px}.ring{--pct:0%;display:grid;place-items:center;width:86px;height:86px;border-radius:50%;background:conic-gradient(var(--green) var(--pct),#e6eef1 0);position:relative;flex:none}.ring:before{content:"";position:absolute;width:67px;height:67px;border-radius:50%;background:var(--card2)}.ring span{position:relative;font-weight:900;font-size:15px}.health-copy small{display:block;color:var(--muted);margin-top:3px}.status-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.status-pill{border-radius:999px;padding:6px 8px;background:#fff;border:1px solid #e0e8ec;font-size:11px;font-weight:780}
+    .two-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:18px;margin-bottom:18px}.tabs{display:flex;gap:5px;overflow:auto;margin-bottom:14px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab-btn{flex:none;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff;color:var(--muted);font-size:12px;font-weight:800;cursor:pointer}.tab-btn.active{border-color:var(--nav);background:var(--nav);color:#fff}.breakdown-list{display:grid;gap:10px}.break-row{display:grid;grid-template-columns:minmax(100px,1.3fr) minmax(110px,2fr) auto;align-items:center;gap:11px}.break-label{min-width:0}.break-label strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.break-label small{color:var(--muted)}.diverging{height:9px;border-radius:999px;background:linear-gradient(90deg,#fee4e2 0 49.4%,#d0d5dd 49.4% 50.6%,#d1fadf 50.6% 100%);position:relative;overflow:hidden}.diverging span{position:absolute;top:1px;height:7px;border-radius:999px}.diverging span.pos{left:50%;background:var(--green)}.diverging span.neg{right:50%;background:var(--red)}.break-value{text-align:right;white-space:nowrap}.break-value strong{display:block}.break-value small{color:var(--muted)}
+    .insights{display:grid;gap:10px}.insight{padding:13px 14px;border-radius:14px;border:1px solid #e2e9ed;border-left-width:4px;background:var(--card2)}.insight strong{display:block;margin-bottom:3px}.insight p{margin:0;color:var(--muted);font-size:12px}.insight.success{border-left-color:var(--green)}.insight.warning{border-left-color:var(--amber)}.insight.danger{border-left-color:var(--red)}.insight.info{border-left-color:var(--blue)}
+    .table-card{margin-bottom:18px;overflow:hidden}.table-head{padding:18px 19px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.table-head h2{margin:0;font-size:17px}.table-head p{margin:3px 0 0;color:var(--muted);font-size:12px}.search{width:min(320px,100%);border:1px solid var(--line);border-radius:11px;padding:9px 11px;background:#fff;color:var(--text);outline:none}.table-scroll{overflow:auto}.data-table{width:100%;border-collapse:collapse;min-width:900px}.data-table th{padding:10px 14px;text-align:left;background:#f7fafb;border-top:1px solid var(--line);border-bottom:1px solid var(--line);color:#475467;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.data-table td{padding:12px 14px;border-bottom:1px solid #edf1f3;vertical-align:middle}.data-table tr:last-child td{border-bottom:0}.event-cell strong{display:block;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.event-cell small{color:var(--muted)}.status{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900}.status.GREEN,.status.HALF_GREEN{background:#d1fadf;color:#067647}.status.RED,.status.HALF_RED{background:#fee4e2;color:#b42318}.status.VOID{background:#eaecf0;color:#344054}.status.PENDING{background:#fef0c7;color:#b54708}.empty{padding:30px;text-align:center;color:var(--muted)}
+    details.audit{margin-bottom:18px}.audit summary{cursor:pointer;list-style:none;padding:16px 18px;font-weight:850}.audit summary::-webkit-details-marker{display:none}.audit summary:after{content:"＋";float:right}.audit[open] summary:after{content:"−"}.audit-body{padding:0 18px 18px}.audit-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.audit-item{padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--card2)}.audit-item small{display:block;color:var(--muted);margin-bottom:4px}.audit-note{margin-top:12px;padding:12px;border-radius:12px;background:#fff7e6;color:#7a4c00;border:1px solid #f8dca1;font-size:12px}
+    .loading{position:fixed;inset:0;display:grid;place-items:center;background:rgba(242,246,248,.86);z-index:30;backdrop-filter:blur(4px)}.loader-card{display:flex;align-items:center;gap:12px;padding:15px 18px;border:1px solid var(--line);border-radius:15px;background:#fff;box-shadow:var(--shadow);font-weight:800}.spinner{width:26px;height:26px;border-radius:50%;border:3px solid #dce5e9;border-top-color:var(--blue);animation:spin .8s linear infinite}.error-page{min-height:100vh;display:grid;place-items:center;padding:24px}.error-box{max-width:560px;padding:28px;border:1px solid #fecaca;border-radius:20px;background:#fff;box-shadow:var(--shadow)}.error-box h2{margin-top:0}
+    @media(max-width:1320px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.main-grid{grid-template-columns:minmax(0,1.4fr) minmax(290px,.7fr)}}
+    @media(max-width:1020px){.layout{grid-template-columns:82px minmax(0,1fr)}.sidebar{padding:18px 12px}.brand span,.nav span,.side-box{display:none}.brand{justify-content:center}.nav a{justify-content:center;font-size:18px}.main-grid,.two-grid{grid-template-columns:1fr}.chart-wrap{height:330px}}
+    @media(max-width:720px){.layout{display:block}.sidebar{position:static;height:auto;padding:10px 14px;display:flex;align-items:center;justify-content:space-between}.brand span{display:block}.brand-mark{width:38px;height:38px}.nav{margin:0;display:flex}.nav a{display:none}.nav a.active{display:flex;padding:9px 12px;font-size:12px}.side-box{display:none}main{padding:16px 12px 32px}.topbar{align-items:center}.topbar .muted{display:none}h1{font-size:25px}.control-bar{top:6px;display:block}.period-copy{margin-bottom:8px}.periods{width:100%}.notice{display:block}.badge-row{margin-top:10px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi{min-height:130px;padding:14px}.kpi-value{font-size:22px}.main-grid,.two-grid{gap:12px}.section-card{padding:15px}.section-head{display:block}.section-head .segmented{display:inline-flex;margin-top:10px}.chart-wrap{height:300px}.chart-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.audit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.table-head{display:block}.search{margin-top:10px;width:100%}}
+    @media(max-width:430px){.kpis{grid-template-columns:1fr 1fr}.kpi-value{font-size:20px}.chart-wrap{height:270px}.break-row{grid-template-columns:minmax(90px,1fr) 1.3fr auto}.audit-grid{grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
 {% if initial_error %}
-  <div class="error"><h2>Link indisponível</h2><p>{{ initial_error }}</p><p>Volte ao Telegram e use <strong>/dashboard</strong> para gerar um novo link.</p></div>
+  <div class="error-page"><div class="error-box"><h2>Link indisponível</h2><p>{{ initial_error }}</p><p>Volte ao Telegram e use <strong>/dashboard</strong> para gerar um link novo.</p></div></div>
 {% else %}
-  <div id="loading" class="loading"><div class="loader-card"><div class="spinner"></div><span>Carregando sua banca…</span></div></div>
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="brand"><div class="brand-mark">📈</div><span>Bankroll Pro<small>Gestão e performance</small></span></div>
-      <nav class="nav"><a class="active" href="#inicio">▦ <span>Visão geral</span></a><a href="#analises">⌁ <span>Análises</span></a><a href="#historico">☷ <span>Histórico</span></a></nav>
-      <div class="side-status"><strong>Modo econômico ativo</strong>SVG e JavaScript puro no seu aparelho. Sem Matplotlib, React ou processos extras no Render.</div>
-    </aside>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">📊</div><span>Bankroll Intelligence<small>Gestão de banca</small></span></div>
+    <nav class="nav">
+      <a class="active" href="#visao">⌂ <span>Visão geral</span></a>
+      <a href="#performance">⌁ <span>Performance</span></a>
+      <a href="#analises">◫ <span>Análises</span></a>
+      <a href="#historico">▤ <span>Histórico</span></a>
+      <a href="#auditoria">✓ <span>Auditoria</span></a>
+    </nav>
+    <div class="side-box"><strong><span class="dot"></span>Dados auditáveis</strong>Períodos móveis usam apenas a data real de liquidação.</div>
+  </aside>
 
-    <main id="inicio">
-      <header class="topbar"><div><h1>Dashboard</h1><div id="welcome" class="muted">Resumo inteligente da sua banca</div></div><div class="top-actions"><button id="refresh" class="refresh-button" type="button"><span>↻</span><b class="refresh-label">Atualizar</b></button></div></header>
+  <main id="visao">
+    <header class="topbar">
+      <div><div class="eyebrow">Dashboard profissional</div><h1 id="welcome">Sua banca</h1><div class="muted" id="generated">Carregando dados...</div></div>
+      <div class="top-actions"><button id="refresh" class="icon-button"><span>↻</span> Atualizar</button></div>
+    </header>
 
-      <section class="period-shell" aria-label="Filtro de período"><span class="period-title">Período analisado</span><div class="periods"><button class="period-button" data-period="24h">Últimas 24h</button><button class="period-button" data-period="7">7 dias</button><button class="period-button" data-period="30">30 dias</button><button class="period-button" data-period="90">90 dias</button><button class="period-button" data-period="365">1 ano</button><button class="period-button" data-period="all">Tudo</button></div></section>
+    <section class="control-bar">
+      <div class="period-copy"><strong id="periodLabel">Últimos 30 dias</strong><small id="rangeLabel">—</small></div>
+      <div class="periods" id="periods">
+        <button class="period-btn" data-period="24h">24 horas</button>
+        <button class="period-btn" data-period="7">7 dias</button>
+        <button class="period-btn active" data-period="30">30 dias</button>
+        <button class="period-btn" data-period="90">90 dias</button>
+        <button class="period-btn" data-period="365">1 ano</button>
+        <button class="period-btn" data-period="all">Tudo</button>
+      </div>
+    </section>
 
-      <section class="grid">
-        <article class="card metric" style="--accent:#1570ef;--accent-soft:#eef4ff"><div class="metric-head"><span class="metric-label">Saldo atual</span><span class="metric-icon">💳</span></div><div id="bankroll" class="metric-value">R$ 0,00</div><div class="metric-foot">Banca consolidada agora</div></article>
-        <article class="card metric" style="--accent:#079447;--accent-soft:#ecfdf3"><div class="metric-head"><span class="metric-label">Lucro líquido</span><span class="metric-icon">↗</span></div><div id="profit" class="metric-value">R$ 0,00</div><div id="profitCompare" class="metric-foot">No período selecionado</div></article>
-        <article class="card metric" style="--accent:#6941c6;--accent-soft:#f4f0ff"><div class="metric-head"><span class="metric-label">ROI</span><span class="metric-icon">%</span></div><div id="roi" class="metric-value">0,00%</div><div id="roiCompare" class="metric-foot">Retorno sobre as stakes</div></article>
-        <article class="card metric" style="--accent:#d88900;--accent-soft:#fff8e8"><div class="metric-head"><span class="metric-label">Apostas concluídas</span><span class="metric-icon">◎</span></div><div id="concluded" class="metric-value">0</div><div id="concludedCompare" class="metric-foot">Resultados no período</div></article>
-        <article class="card metric" style="--accent:#079447;--accent-soft:#ecfdf3"><div class="metric-head"><span class="metric-label">Taxa de acerto</span><span class="metric-icon">🎯</span></div><div id="winRate" class="metric-value">0,00%</div><div id="record" class="metric-foot">0 greens • 0 reds</div></article>
-        <article class="card metric" style="--accent:#1570ef;--accent-soft:#eef4ff"><div class="metric-head"><span class="metric-label">Total investido</span><span class="metric-icon">R$</span></div><div id="invested" class="metric-value">R$ 0,00</div><div id="investedCompare" class="metric-foot">Stake liquidada</div></article>
-        <article class="card metric" style="--accent:#d88900;--accent-soft:#fff8e8"><div class="metric-head"><span class="metric-label">Exposição aberta</span><span class="metric-icon">⌛</span></div><div id="exposure" class="metric-value">R$ 0,00</div><div id="exposurePct" class="metric-foot">0,00% da banca</div><div class="risk-bar"><div id="exposureBar" class="risk-fill" style="width:0%"></div></div></article>
-        <article class="card metric" style="--accent:#d92d20;--accent-soft:#fff1f0"><div class="metric-head"><span class="metric-label">Drawdown máximo</span><span class="metric-icon">↘</span></div><div id="drawdown" class="metric-value">R$ 0,00</div><div id="drawdownPct" class="metric-foot">0,00% do pico</div></article>
+    <section class="notice">
+      <div><strong>Como os períodos são calculados</strong><div id="periodRule">A performance usa a data de liquidação. Apostas antigas sem essa data não entram em janelas móveis.</div></div>
+      <div class="badge-row"><span class="badge ok" id="exactBadge">✓ 0 resultados datados</span><span class="badge warn" id="legacyBadge">! 0 sem data</span></div>
+    </section>
 
-        <article class="card full quality-strip"><div class="quality-item"><div class="quality-label">Odd média</div><div id="averageOdds" class="quality-value">0,00</div></div><div class="quality-item"><div class="quality-label">Stake média</div><div id="averageStake" class="quality-value">R$ 0,00</div></div><div class="quality-item"><div class="quality-label">Fator de lucro</div><div id="profitFactor" class="quality-value">0,00</div></div><div class="quality-item"><div class="quality-label">Sequência atual</div><div id="streak" class="quality-value">—</div></div><div class="quality-item"><div class="quality-label">Pendentes</div><div id="pendingCount" class="quality-value">0</div></div></article>
+    <section class="kpis" id="kpis">
+      <article class="card kpi"><div class="kpi-top"><span>Saldo atual</span><span class="kpi-icon">💼</span></div><div><div class="kpi-value mono" id="bankroll">—</div><div class="kpi-foot">Valor global agora; não depende do período.</div></div></article>
+      <article class="card kpi"><div class="kpi-top"><span id="profitTitle">Lucro da janela</span><span class="kpi-icon">↗</span></div><div><div class="kpi-value mono" id="profit">—</div><div id="profitDelta" class="delta flat">—</div><div class="kpi-foot" id="profitFoot">Resultados liquidados no período.</div></div></article>
+      <article class="card kpi"><div class="kpi-top"><span>ROI</span><span class="kpi-icon">%</span></div><div><div class="kpi-value mono" id="roi">—</div><div id="roiDelta" class="delta flat">—</div><div class="kpi-foot">Lucro ÷ valor investido.</div></div></article>
+      <article class="card kpi"><div class="kpi-top"><span>Total investido</span><span class="kpi-icon">R$</span></div><div><div class="kpi-value mono" id="invested">—</div><div id="investedDelta" class="delta flat">—</div><div class="kpi-foot">Somente apostas concluídas da janela.</div></div></article>
+      <article class="card kpi"><div class="kpi-top"><span>Concluídas</span><span class="kpi-icon">◎</span></div><div><div class="kpi-value mono" id="concluded">—</div><div id="betsDelta" class="delta flat">—</div><div class="kpi-foot" id="concludedFoot">Resultados com data confiável.</div></div></article>
+      <article class="card kpi"><div class="kpi-top"><span>Taxa de acerto</span><span class="kpi-icon">🎯</span></div><div><div class="kpi-value mono" id="winRate">—</div><div class="status-pills" id="statusPills"></div></div></article>
+    </section>
 
-        <article class="card full" id="analises">
-          <div class="section-head">
-            <div><h2>Curva de performance</h2><div id="chartSubtitle" class="section-sub">Evolução conciliada da banca</div></div>
-            <div><div class="head-badges"><span class="badge">⏱ Por data de liquidação</span><span id="reconciledBadge" class="badge ok">✓ Valores conciliados</span></div><div class="segmented"><button class="segment active" data-chart="balance">Saldo</button><button class="segment" data-chart="cumulative">Lucro acumulado</button><button class="segment" data-chart="interval">Por intervalo</button></div></div>
-          </div>
-          <div id="reconciliation" class="reconciliation"></div>
-          <div id="chart" class="chart-shell"><div class="chart-empty">Carregando gráfico…</div></div>
-          <div id="chartLegend" class="chart-legend"></div>
-          <div class="chart-summary">
-            <div class="chart-stat"><span>Saldo inicial</span><strong id="openingBalance">R$ 0,00</strong></div>
-            <div class="chart-stat"><span>Saldo final</span><strong id="closingBalance">R$ 0,00</strong></div>
-            <div class="chart-stat"><span>Lucro nas apostas</span><strong id="chartProfit">R$ 0,00</strong></div>
-            <div class="chart-stat"><span>Movimentações</span><strong id="chartTransactions">R$ 0,00</strong></div>
-            <div class="chart-stat"><span>Variação da banca</span><strong id="periodChange">R$ 0,00</strong></div>
-            <div class="chart-stat"><span>Melhor intervalo</span><strong id="bestInterval">R$ 0,00</strong></div>
-            <div class="chart-stat"><span id="worstIntervalLabel">Pior intervalo</span><strong id="worstInterval">R$ 0,00</strong></div>
-          </div>
-          <div id="chartNote" class="chart-note hidden"></div>
-        </article>
+    <section class="main-grid" id="performance">
+      <article class="card section-card">
+        <div class="section-head">
+          <div><h2>Performance datada</h2><p id="chartSubtitle">Resultados distribuídos pela data real de liquidação.</p></div>
+          <div class="segmented"><button class="chart-mode active" data-mode="bars">Por intervalo</button><button class="chart-mode" data-mode="line">Acumulado</button></div>
+        </div>
+        <div class="chart-wrap" id="chartWrap"><canvas id="chart"></canvas><div class="chart-tooltip" id="tooltip"></div></div>
+        <div class="chart-stats">
+          <div class="mini-stat"><small>Lucro datado</small><strong id="chartTotal">—</strong></div>
+          <div class="mini-stat"><small>Melhor intervalo</small><strong id="bestInterval">—</strong></div>
+          <div class="mini-stat"><small>Pior intervalo</small><strong id="worstInterval">—</strong></div>
+          <div class="mini-stat"><small>Movimentações</small><strong id="cashflowNet">—</strong></div>
+        </div>
+      </article>
 
-        <article class="card span-2"><div class="section-head"><div><h2>Onde você ganha e perde</h2><div class="section-sub">Lucro, ROI, amostra e volume por categoria</div></div></div><div class="breakdown-tabs"><button class="breakdown-tab active" data-breakdown="sports">Esportes</button><button class="breakdown-tab" data-breakdown="tipsters">Tipsters</button><button class="breakdown-tab" data-breakdown="bookmakers">Casas</button><button class="breakdown-tab" data-breakdown="odds_ranges">Faixas de odd</button></div><div id="breakdown" class="bar-list"></div></article>
-        <article class="card span-2"><div class="section-head"><div><h2>Insights automáticos</h2><div class="section-sub">Leitura objetiva, sem IA pesada no servidor</div></div></div><div id="insights" class="insights"></div></article>
-        <article class="card span-2"><div class="section-head"><div><h2>Apostas pendentes</h2><div class="section-sub">Exposição que ainda pode alterar sua banca</div></div><span id="pendingBadge" class="pill PENDING">0 abertas</span></div><div id="pendingList" class="pending-list"></div></article>
-        <article class="card span-2"><div class="section-head"><div><h2>Leitura do período</h2><div id="periodSummaryLabel" class="section-sub">Indicadores rápidos</div></div></div><div id="periodSummary" class="insights"></div></article>
+      <aside class="card section-card">
+        <div class="section-head"><div><h2>Saúde da banca</h2><p>Risco atual e qualidade operacional.</p></div></div>
+        <div class="health-grid">
+          <div class="health-item"><div class="ring-row"><div class="ring" id="exposureRing"><span id="exposurePct">0%</span></div><div class="health-copy"><strong>Exposição aberta</strong><div class="mono" id="exposureValue">—</div><small id="pendingText">0 apostas pendentes</small></div></div></div>
+          <div class="health-item"><div class="health-line"><span>Drawdown na janela</span><strong class="mono" id="drawdown">—</strong></div><div class="meter"><span id="drawdownMeter" style="width:0%"></span></div></div>
+          <div class="health-item"><div class="health-line"><span>Sequência atual</span><strong id="streak">—</strong></div><div class="status-pills"><span class="status-pill" id="profitFactor">Fator de lucro: —</span><span class="status-pill" id="avgOdds">Odd média: —</span><span class="status-pill" id="avgStake">Stake média: —</span></div></div>
+          <div class="health-item"><div class="health-line"><span>Fluxo financeiro da janela</span><strong class="mono" id="cashflowHealth">—</strong></div><div class="muted" style="margin-top:5px;font-size:12px" id="cashflowDetail">Entradas e saídas são separadas do lucro das apostas.</div></div>
+        </div>
+      </aside>
+    </section>
 
-        <article class="card full" id="historico"><div class="section-head"><div><h2>Últimas apostas</h2><div class="section-sub">Busca e filtro local, sem novas consultas ao Render</div></div><span id="generated" class="muted"></span></div><div class="table-tools"><input id="search" class="search" type="search" placeholder="Buscar evento, esporte, mercado, tipster ou casa…"><select id="statusFilter" class="filter"><option value="all">Todos os status</option><option value="GREEN">Green</option><option value="RED">Red</option><option value="PENDING">Pendente</option><option value="VOID">Void</option><option value="HALF_GREEN">Half green</option><option value="HALF_RED">Half red</option></select></div><div class="table-wrap"><table><thead><tr><th>Data</th><th>Evento</th><th>Mercado</th><th>Tipster / Casa</th><th>Odd</th><th>Stake</th><th>Status</th><th>Resultado</th></tr></thead><tbody id="bets"></tbody></table></div></article>
-      </section>
-    </main>
-  </div>
+    <section class="two-grid" id="analises">
+      <article class="card section-card">
+        <div class="section-head"><div><h2>Onde você ganha e perde</h2><p id="breakdownScope">Categorias da janela selecionada.</p></div></div>
+        <div class="tabs" id="breakTabs"><button class="tab-btn active" data-break="sports">Esportes</button><button class="tab-btn" data-break="tipsters">Tipsters</button><button class="tab-btn" data-break="bookmakers">Casas</button><button class="tab-btn" data-break="markets">Mercados</button></div>
+        <div class="breakdown-list" id="breakdownList"></div>
+      </article>
+      <article class="card section-card">
+        <div class="section-head"><div><h2>Insights automáticos</h2><p>Regras objetivas, sem IA pesada no servidor.</p></div></div>
+        <div class="insights" id="insights"></div>
+      </article>
+    </section>
 
-  <script>
-    const TOKEN={{ token|tojson }};
-    const $=id=>document.getElementById(id);
-    const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();document.documentElement.dataset.telegramTheme=tg.colorScheme||'light';}
-    let DATA=null;
-    let currentPeriod=localStorage.getItem('bankroll-period')||'30';
-    let chartMode=localStorage.getItem('bankroll-chart-v5')||'balance';
-    if(chartMode==='profit')chartMode='interval';
-    if(!['balance','cumulative','interval'].includes(chartMode))chartMode='balance';
-    let breakdownMode='sports';
-    let resizeTimer=null;
+    <section class="card table-card" id="historico">
+      <div class="table-head"><div><h2>Resultados do período</h2><p id="historyScope">Apenas resultados que pertencem à janela selecionada.</p></div><input id="search" class="search" placeholder="Buscar evento, esporte, mercado, tipster..." autocomplete="off"></div>
+      <div class="table-scroll"><table class="data-table"><thead><tr><th>Data do resultado</th><th>Evento</th><th>Esporte</th><th>Odd</th><th>Stake</th><th>Status</th><th>Lucro</th><th>Casa/Tipster</th></tr></thead><tbody id="historyBody"></tbody></table><div class="empty hidden" id="historyEmpty">Nenhum resultado encontrado.</div></div>
+    </section>
 
-    const PERIOD_LABELS={'24h':'Últimas 24 horas','7':'Últimos 7 dias','30':'Últimos 30 dias','90':'Últimos 90 dias','365':'Último ano','all':'Todo o histórico'};
-    const GRANULARITY_LABELS={hour:'hora',day:'dia',week:'semana',month:'mês'};
-    const STATUS_LABELS={GREEN:'Green',RED:'Red',VOID:'Void',HALF_GREEN:'Half green',HALF_RED:'Half red',PENDING:'Pendente'};
+    <section class="card table-card">
+      <div class="table-head"><div><h2>Apostas pendentes</h2><p>Posições abertas agora, independentemente do período.</p></div></div>
+      <div class="table-scroll"><table class="data-table"><thead><tr><th>Registrada</th><th>Evento</th><th>Esporte</th><th>Odd</th><th>Stake</th><th>Casa</th></tr></thead><tbody id="pendingBody"></tbody></table><div class="empty hidden" id="pendingEmpty">Nenhuma aposta pendente.</div></div>
+    </section>
 
-    function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-    function number(value,places=2){return Number(value||0).toLocaleString('pt-BR',{minimumFractionDigits:places,maximumFractionDigits:places});}
-    function money(value){const formatted=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(value||0));const currency=DATA?.profile?.currency||'R$';return currency==='R$'?formatted:formatted.replace('R$',currency);}
-    function compactMoney(value){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',notation:'compact',maximumFractionDigits:1}).format(Number(value||0));}
-    function signedClass(value){return Number(value)>0?'positive':Number(value)<0?'negative':'';}
-    function setSigned(el,value,formatter=money){el.textContent=formatter(value);el.classList.remove('positive','negative');const cls=signedClass(value);if(cls)el.classList.add(cls);}
-    function trendMoney(current,previous){if(!DATA?.previous)return '<span>Resultado consolidado</span>';const delta=Number(current||0)-Number(previous||0),arrow=delta>0?'↑':delta<0?'↓':'→',cls=delta>0?'up':delta<0?'down':'flat';return `<span class="trend ${cls}">${arrow} ${escapeHtml(money(Math.abs(delta)))}</span><span>vs janela anterior</span>`;}
-    function trendPoints(current,previous){if(!DATA?.previous)return '<span>Retorno consolidado</span>';const delta=Number(current||0)-Number(previous||0),arrow=delta>0?'↑':delta<0?'↓':'→',cls=delta>0?'up':delta<0?'down':'flat';return `<span class="trend ${cls}">${arrow} ${number(Math.abs(delta))} p.p.</span><span>vs janela anterior</span>`;}
-    function trendPercent(current,previous){if(!DATA?.previous)return '<span>Total consolidado</span>';const c=Number(current||0),p=Number(previous||0);if(p===0)return c===0?'<span class="trend flat">→ 0%</span><span>vs janela anterior</span>':'<span class="trend up">Novo</span><span>vs janela anterior</span>';const delta=(c-p)/Math.abs(p)*100,arrow=delta>0?'↑':delta<0?'↓':'→',cls=delta>0?'up':delta<0?'down':'flat';return `<span class="trend ${cls}">${arrow} ${number(Math.abs(delta),1)}%</span><span>vs janela anterior</span>`;}
+    <details class="card audit" id="auditoria">
+      <summary>Auditoria dos dados e cobertura dos períodos</summary>
+      <div class="audit-body"><div class="audit-grid">
+        <div class="audit-item"><small>Resultados com data exata</small><strong id="auditExact">—</strong></div>
+        <div class="audit-item"><small>Resultados antigos sem data</small><strong id="auditLegacy">—</strong></div>
+        <div class="audit-item"><small>Resumo consolidado importado</small><strong id="auditBase">—</strong></div>
+        <div class="audit-item"><small>Cobertura temporal</small><strong id="auditCoverage">—</strong></div>
+      </div><div class="audit-note" id="auditNote">Os períodos móveis não usam datas estimadas. Isso evita que apostas antigas apareçam falsamente nas últimas 24 horas ou nos últimos 7 dias.</div></div>
+    </details>
+  </main>
+</div>
 
-    function activatePeriod(){document.querySelectorAll('.period-button').forEach(b=>b.classList.toggle('active',b.dataset.period===currentPeriod));}
-    function activateChart(){document.querySelectorAll('[data-chart]').forEach(b=>b.classList.toggle('active',b.dataset.chart===chartMode));}
-    function parseTime(value){const t=new Date(value).getTime();return Number.isFinite(t)?t:Date.now();}
-    function axisDate(timestamp){const date=new Date(timestamp);if(DATA.series_granularity==='hour')return date.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit'});if(DATA.series_granularity==='month')return date.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});return date.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}
-    function longDate(timestamp){return new Date(timestamp).toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
-    function niceNumber(range,round){const exponent=Math.floor(Math.log10(Math.max(range,1e-9))),fraction=range/10**exponent;let niceFraction;if(round){niceFraction=fraction<1.5?1:fraction<3?2:fraction<7?5:10;}else{niceFraction=fraction<=1?1:fraction<=2?2:fraction<=5?5:10;}return niceFraction*10**exponent;}
-    function niceScale(values,includeZero=false,maxTicks=5){let min=Math.min(...values),max=Math.max(...values);if(includeZero){min=Math.min(min,0);max=Math.max(max,0);}if(min===max){const pad=Math.max(Math.abs(min)*.08,1);min-=pad;max+=pad;}else{const pad=(max-min)*.08;min-=pad;max+=pad;}const range=niceNumber(max-min,false),step=niceNumber(range/(maxTicks-1),true),niceMin=Math.floor(min/step)*step,niceMax=Math.ceil(max/step)*step;const ticks=[];for(let v=niceMin;v<=niceMax+step*.5;v+=step)ticks.push(Math.abs(v)<step/1000?0:v);return {min:niceMin,max:niceMax,ticks};}
+<div class="loading" id="loading"><div class="loader-card"><div class="spinner"></div><span>Calculando sua banca...</span></div></div>
+<script>
+(() => {
+  "use strict";
+  const TOKEN = {{ token|tojson }};
+  const $ = (id) => document.getElementById(id);
+  const state = { period: new URLSearchParams(location.search).get("period") || "30", mode:"bars", breakdown:"sports", data:null, hover:-1 };
+  const brMoney = new Intl.NumberFormat("pt-BR", {style:"currency", currency:"BRL", maximumFractionDigits:2});
+  const brNum = new Intl.NumberFormat("pt-BR", {maximumFractionDigits:2});
+  const fmtMoney = (v) => brMoney.format(Number(v || 0));
+  const fmtPct = (v) => `${brNum.format(Number(v || 0))}%`;
+  const signedMoney = (v) => `${Number(v||0) >= 0 ? "+" : "−"}${fmtMoney(Math.abs(Number(v||0)))}`;
+  const escapeHtml = (s) => String(s ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+  const tone = (v) => Number(v||0) > 0 ? "positive" : Number(v||0) < 0 ? "negative" : "";
 
-    function chartPoints(){const c=DATA.chart;return [{point_at:c.opening_at,label:'Início',balance:c.opening_balance,cumulative_profit:0,profit:0,transaction_effect:0,net_change:0,bets:0,invested:0,is_opening:true},...DATA.series];}
-    function chartValue(item){if(chartMode==='balance')return Number(item.balance||0);if(chartMode==='cumulative')return Number(item.cumulative_profit||0);return Number(item.profit||0);}
-    function renderChartStats(){const c=DATA.chart;$('openingBalance').textContent=money(c.opening_balance);$('closingBalance').textContent=money(c.closing_balance);setSigned($('chartProfit'),c.bet_profit);setSigned($('chartTransactions'),c.transaction_effect);setSigned($('periodChange'),c.net_change);setSigned($('bestInterval'),c.best_interval);const hasLoss=Number(c.worst_interval)<0;$('worstIntervalLabel').textContent=hasLoss?'Pior intervalo':'Menor resultado';setSigned($('worstInterval'),c.worst_interval);$('reconciliation').innerHTML=`<strong>${money(c.opening_balance)}</strong><span>saldo inicial</span><span>+</span><strong class="${signedClass(c.bet_profit)}">${money(c.bet_profit)}</strong><span>apostas</span><span>+</span><strong class="${signedClass(c.transaction_effect)}">${money(c.transaction_effect)}</strong><span>movimentações</span><span class="equals">=</span><strong>${money(c.closing_balance)}</strong><span>saldo final</span>`;const diff=Math.abs(Number(c.reconciliation_difference||0));$('reconciledBadge').textContent=diff<.01?'✓ Valores conciliados':'! Verificar conciliação';$('reconciledBadge').classList.toggle('ok',diff<.01);const note=$('chartNote');if(DATA.period==='all'&&Math.abs(Number(DATA.summary.base_profit||0))>.009){note.classList.remove('hidden');note.innerHTML=`<strong>Histórico importado:</strong> o saldo inicial da curva já contém ${escapeHtml(money(DATA.summary.base_profit))} de resultado consolidado sem datas individuais. Por isso, esse valor não reaparece como barra mensal.`;}else{note.classList.add('hidden');note.textContent='';}}
-
-    function renderChart(){
-      const root=$('chart');root.innerHTML='';renderChartStats();
-      const c=DATA.chart,allPoints=chartPoints(),intervalPoints=DATA.series;
-      const source=chartMode==='interval'?intervalPoints:allPoints;
-      if(!source.length){root.innerHTML='<div class="chart-empty"><div><strong>Sem dados neste período</strong><br>Liquide uma aposta para iniciar a curva.</div></div>';return;}
-      const width=Math.max(root.clientWidth||900,320),height=Math.max(root.clientHeight||360,280),left=72,right=22,top=24,bottom=48,plotW=width-left-right,plotH=height-top-bottom;
-      const values=source.map(chartValue),scale=niceScale(values,chartMode!=='balance',5),range=Math.max(scale.max-scale.min,1);
-      const start=parseTime(c.opening_at),end=Math.max(parseTime(c.closing_at),start+1);const xTime=t=>left+((parseTime(t)-start)/(end-start))*plotW;const y=v=>top+((scale.max-v)/range)*plotH;
-      let grid=scale.ticks.map(v=>`<line class="grid-line" x1="${left}" y1="${y(v)}" x2="${width-right}" y2="${y(v)}"/><text class="axis-label" x="${left-9}" y="${y(v)+4}" text-anchor="end">${escapeHtml(compactMoney(v))}</text>`).join('');
-      if(scale.min<0&&scale.max>0)grid+=`<line class="zero-line" x1="${left}" y1="${y(0)}" x2="${width-right}" y2="${y(0)}"/>`;
-      const tickCount=width<520?4:6,xTicks=Array.from({length:tickCount},(_,i)=>start+(end-start)*(i/Math.max(tickCount-1,1)));const xLabels=xTicks.map((t,i)=>`<text class="axis-label" x="${left+plotW*(i/Math.max(tickCount-1,1))}" y="${height-15}" text-anchor="${i===0?'start':i===tickCount-1?'end':'middle'}">${escapeHtml(axisDate(t))}</text>`).join('');
-      let marks='',color=chartMode==='balance'?(Number(c.net_change)>=0?'#079447':'#d92d20'):(Number(c.bet_profit)>=0?'#079447':'#d92d20');
-      if(chartMode==='interval'){
-        const maxBar=Math.min(42,Math.max(7,plotW/Math.max(intervalPoints.length,1)*.64));
-        marks=intervalPoints.map((item,i)=>{const xx=xTime(item.point_at),value=Number(item.profit||0),yy=y(value),zero=y(0),barY=Math.min(yy,zero),barH=Math.max(Math.abs(zero-yy),1),fill=value>=0?'#079447':'#d92d20';return `<rect data-index="${i}" class="interval-bar" x="${xx-maxBar/2}" y="${barY}" width="${maxBar}" height="${barH}" rx="3" fill="${fill}" opacity=".88"/>`;}).join('');
-      }else{
-        const points=allPoints.map(item=>`${xTime(item.point_at)},${y(chartValue(item))}`).join(' '),baseY=chartMode==='cumulative'?y(0):y(scale.min),area=`${xTime(allPoints[0].point_at)},${baseY} ${points} ${xTime(allPoints.at(-1).point_at)},${baseY}`;
-        marks=`<defs><linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity=".25"/><stop offset="100%" stop-color="${color}" stop-opacity=".01"/></linearGradient></defs><polygon points="${area}" fill="url(#curveGradient)"/><polyline class="chart-line" points="${points}" stroke="${color}"/>${allPoints.map((item,i)=>`<circle class="chart-dot" data-index="${i}" cx="${xTime(item.point_at)}" cy="${y(chartValue(item))}" r="${item.is_opening||i===allPoints.length-1?4:2.7}" stroke="${color}"/>`).join('')}${allPoints.filter(item=>Number(item.transaction_effect)).map(item=>`<circle class="transaction-dot" cx="${xTime(item.point_at)}" cy="${y(chartValue(item))}" r="5"/>`).join('')}`;
-      }
-      const interactionSource=chartMode==='interval'?intervalPoints:allPoints;const zones=interactionSource.map((item,i)=>{const xx=xTime(item.point_at),prev=i?xTime(interactionSource[i-1].point_at):left,next=i<interactionSource.length-1?xTime(interactionSource[i+1].point_at):width-right,l=Math.max(left,(prev+xx)/2),r=Math.min(width-right,(xx+next)/2);return `<rect class="hover-zone" data-index="${i}" x="${l}" y="${top}" width="${Math.max(r-l,8)}" height="${plotH}"/>`;}).join('');
-      root.innerHTML=`<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-label="Gráfico de performance">${grid}${marks}${xLabels}<g id="crosshair" class="hidden"><line class="chart-crosshair" x1="0" y1="${top}" x2="0" y2="${height-bottom}"/></g>${zones}</svg><div id="chartTooltip" class="chart-tooltip hidden"></div>`;
-      root.querySelectorAll('.hover-zone').forEach(zone=>{const show=e=>showTooltip(e,interactionSource[Number(zone.dataset.index)],xTime,y);zone.addEventListener('mousemove',show);zone.addEventListener('mouseenter',show);zone.addEventListener('touchstart',show,{passive:true});zone.addEventListener('mouseleave',hideTooltip);});
-      const legend=chartMode==='balance'?'<span class="legend-item"><i class="legend-dot"></i>Saldo final de cada intervalo</span><span class="legend-item"><i class="legend-dot blue"></i>Aporte ou saque</span>':chartMode==='cumulative'?'<span class="legend-item"><i class="legend-dot"></i>Lucro acumulado das apostas</span>':'<span class="legend-item"><i class="legend-dot"></i>Intervalo positivo</span><span class="legend-item"><i class="legend-dot red"></i>Intervalo negativo</span>';$('chartLegend').innerHTML=legend;
+  function setText(id, value){ $(id).textContent = value; }
+  function setMoney(id, value){ const el=$(id); el.textContent=fmtMoney(value); el.classList.remove("positive","negative"); if(Number(value)>0) el.classList.add("positive"); if(Number(value)<0) el.classList.add("negative"); }
+  function deltaMarkup(current, previous, kind="number"){
+    if(!previous || previous.concluded===0 && Number(previous[current]||0)===0) return {text:"Sem comparação anterior", cls:"flat"};
+    const now = Number(state.data.summary[current] || 0), before = Number(previous[current] || 0);
+    if(kind === "pp"){
+      const diff = now-before; return {text:`${diff>=0?"↑":"↓"} ${brNum.format(Math.abs(diff))} p.p. vs anterior`, cls:diff>0?"up":diff<0?"down":"flat"};
     }
+    if(before===0) return {text: now===0?"Sem variação":"Janela anterior zerada", cls:now>0?"up":now<0?"down":"flat"};
+    const pct=(now-before)/Math.abs(before)*100; return {text:`${pct>=0?"↑":"↓"} ${brNum.format(Math.abs(pct))}% vs anterior`, cls:pct>0?"up":pct<0?"down":"flat"};
+  }
+  function applyDelta(id, spec){ const el=$(id); el.textContent=spec.text; el.className=`delta ${spec.cls}`; }
 
-    function showTooltip(event,item,xTime,y){const root=$('chart'),tip=$('chartTooltip'),rect=root.getBoundingClientRect(),point=event.touches?.[0]||event;let px=point.clientX-rect.left,py=point.clientY-rect.top;px=Math.max(105,Math.min(rect.width-105,px));py=Math.max(95,Math.min(rect.height-12,py));const headline=item.is_opening?'Saldo de abertura':chartMode==='balance'?'Saldo no fim do intervalo':chartMode==='cumulative'?'Lucro acumulado':'Resultado do intervalo';const value=item.is_opening?item.balance:chartValue(item);tip.innerHTML=`<span>${escapeHtml(item.is_opening?'Início do período':item.label||longDate(item.point_at))}</span><strong class="${signedClass(chartMode==='balance'?0:value)}">${money(value)}</strong><div class="tooltip-grid"><span>${headline}</span><b>${money(value)}</b>${item.is_opening?'':`<span>Lucro das apostas</span><b class="${signedClass(item.profit)}">${money(item.profit)}</b><span>Movimentações</span><b class="${signedClass(item.transaction_effect)}">${money(item.transaction_effect)}</b><span>Apostas / stake</span><b>${item.bets} / ${money(item.invested)}</b>`}</div>`;tip.style.left=`${px}px`;tip.style.top=`${py}px`;tip.classList.remove('hidden');const cross=root.querySelector('#crosshair');if(cross){const svgX=xTime(item.point_at),line=cross.querySelector('line');line.setAttribute('x1',svgX);line.setAttribute('x2',svgX);cross.classList.remove('hidden');}}
-    function hideTooltip(){const tip=$('chartTooltip');if(tip)tip.classList.add('hidden');const cross=$('chart')?.querySelector('#crosshair');if(cross)cross.classList.add('hidden');}
+  async function load(){
+    $("loading").classList.remove("hidden"); $("refresh").disabled=true; $("refresh").firstElementChild.classList.add("spin");
+    try{
+      const url=`/api/dashboard/${encodeURIComponent(TOKEN)}?period=${encodeURIComponent(state.period)}&_=${Date.now()}`;
+      const response=await fetch(url,{cache:"no-store",headers:{"Accept":"application/json"}});
+      const payload=await response.json().catch(()=>({error:"Resposta inválida do servidor."}));
+      if(!response.ok) throw new Error(payload.error || `Erro HTTP ${response.status}`);
+      state.data=payload; render();
+      history.replaceState(null,"",`${location.pathname}?period=${encodeURIComponent(state.period)}`);
+    }catch(error){
+      alert(`Não foi possível carregar o dashboard: ${error.message}`);
+    }finally{
+      $("loading").classList.add("hidden"); $("refresh").disabled=false; $("refresh").firstElementChild.classList.remove("spin");
+    }
+  }
 
-    function renderBreakdown(){const root=$('breakdown'),items=DATA?.breakdowns?.[breakdownMode]||[];root.innerHTML='';if(!items.length){root.innerHTML='<div class="empty">Sem dados suficientes nesta categoria.</div>';return;}const max=Math.max(...items.map(i=>Math.abs(Number(i.profit||0))),1);items.forEach(item=>{const amount=Math.min(50,Math.abs(Number(item.profit||0))/max*50),positive=Number(item.profit)>=0,left=positive?50:50-amount;const row=document.createElement('div');row.className='bar-row';row.innerHTML=`<div class="bar-label"><strong title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</strong><small>${item.bets} aposta(s) • ${item.bets<10?'amostra pequena':'amostra útil'}</small></div><div class="diverge-track"><div class="diverge-fill ${positive?'':'neg'}" style="left:${left}%;width:${Math.max(amount,1.5)}%"></div></div><div class="bar-value ${signedClass(item.profit)}"><strong>${money(item.profit)}</strong><small>ROI ${number(item.roi)}%</small></div>`;root.appendChild(row);});}
-    function renderInsights(items){const icons={success:'✓',warning:'!',danger:'×',info:'i'};$('insights').innerHTML=items.map(item=>`<div class="insight ${escapeHtml(item.level)}"><div class="insight-icon">${icons[item.level]||'i'}</div><div><strong>${escapeHtml(item.title||'Insight')}</strong><p>${escapeHtml(item.text)}</p></div></div>`).join('');}
-    function renderPending(items){$('pendingBadge').textContent=`${items.length} aberta(s)`;if(!items.length){$('pendingList').innerHTML='<div class="empty">Nenhuma aposta pendente. Sua exposição está zerada.</div>';return;}$('pendingList').innerHTML=items.map(item=>`<div class="pending-item"><div><strong>${escapeHtml(item.event)}</strong><small>${escapeHtml(item.market)} • ${escapeHtml(item.bookmaker)}</small></div><div class="pending-amount">${money(item.stake)}<small>odd ${number(item.odds)}</small></div></div>`).join('');}
-    function renderPeriodSummary(s){const factor=s.profit_factor===null?(s.gross_profit>0?'∞':'0,00'):number(s.profit_factor),items=[{level:s.profit>=0?'success':'danger',title:'Resultado líquido',text:`${money(s.profit)} em ${s.concluded} aposta(s) concluída(s).`},{level:'info',title:'Qualidade do resultado',text:`Fator de lucro ${factor}; ganhos brutos de ${money(s.gross_profit)} contra perdas brutas de ${money(s.gross_loss)}.`},{level:s.open_exposure_pct>=15?'warning':'info',title:'Risco em aberto',text:`${s.pending} aposta(s) pendente(s), somando ${money(s.open_exposure)} (${number(s.open_exposure_pct)}% da banca).`}],icons={success:'✓',warning:'!',danger:'×',info:'i'};$('periodSummary').innerHTML=items.map(i=>`<div class="insight ${i.level}"><div class="insight-icon">${icons[i.level]}</div><div><strong>${i.title}</strong><p>${i.text}</p></div></div>`).join('');}
-    function renderBets(){const query=$('search').value.trim().toLowerCase(),status=$('statusFilter').value,items=(DATA?.recent_bets||[]).filter(item=>{const hay=[item.event,item.sport,item.market,item.tipster,item.bookmaker].join(' ').toLowerCase();return(!query||hay.includes(query))&&(status==='all'||item.status===status);});$('bets').innerHTML=items.map(item=>`<tr><td>${escapeHtml(item.date)}</td><td><strong>${escapeHtml(item.event)}</strong><br><span class="muted">${escapeHtml(item.sport)}</span></td><td>${escapeHtml(item.market)}</td><td>${escapeHtml(item.tipster)}<br><span class="muted">${escapeHtml(item.bookmaker)}</span></td><td>${number(item.odds)}</td><td>${money(item.stake)}</td><td><span class="pill ${escapeHtml(item.status)}">${escapeHtml(STATUS_LABELS[item.status]||item.status)}</span></td><td class="${signedClass(item.profit)}"><strong>${money(item.profit)}</strong></td></tr>`).join('')||'<tr><td colspan="8" class="empty">Nenhuma aposta encontrada com esses filtros.</td></tr>';}
+  function render(){
+    const d=state.data, s=d.summary, g=d.global, q=d.quality, prev=d.previous;
+    setText("welcome", `Olá, ${d.profile.display_name}`);
+    setText("generated", `Atualizado em ${new Date(d.generated_at).toLocaleString("pt-BR")}`);
+    setText("periodLabel", d.period.label); setText("rangeLabel", d.period.range_label);
+    document.querySelectorAll(".period-btn").forEach(b=>b.classList.toggle("active",b.dataset.period===state.period));
+    setText("exactBadge", `✓ ${q.exact_dated} resultados datados`); setText("legacyBadge", `! ${q.legacy_undated} sem data exata`);
 
-    function render(data){DATA=data;const s=data.summary,p=data.previous;$('welcome').textContent=`Olá, ${data.profile.display_name}. ${PERIOD_LABELS[data.period]} em uma visão conciliada.`;$('periodSummaryLabel').textContent=PERIOD_LABELS[data.period];$('chartSubtitle').textContent=`${PERIOD_LABELS[data.period]} • agregação por ${GRANULARITY_LABELS[data.series_granularity]||data.series_granularity}`;$('bankroll').textContent=money(s.current_bankroll);setSigned($('profit'),s.profit);$('profitCompare').innerHTML=p?trendMoney(s.profit,p.profit):'<span>Resultado consolidado</span>';setSigned($('roi'),s.roi,v=>`${number(v)}%`);$('roiCompare').innerHTML=p?trendPoints(s.roi,p.roi):'<span>Retorno sobre as stakes</span>';$('concluded').textContent=s.concluded;$('concludedCompare').innerHTML=p?trendPercent(s.concluded,p.concluded):'<span>Total consolidado</span>';$('winRate').textContent=`${number(s.win_rate)}%`;$('record').textContent=`${s.greens+s.half_greens} greens • ${s.reds+s.half_reds} reds • ${s.voids} voids`;$('invested').textContent=money(s.invested);$('investedCompare').innerHTML=p?trendPercent(s.invested,p.invested):'<span>Stake liquidada consolidada</span>';$('exposure').textContent=money(s.open_exposure);$('exposurePct').textContent=`${number(s.open_exposure_pct)}% da banca`;const exposureWidth=Math.max(0,Math.min(100,s.open_exposure_pct));$('exposureBar').style.width=`${exposureWidth}%`;$('exposureBar').className=`risk-fill ${s.open_exposure_pct>=15?'high':s.open_exposure_pct>=8?'medium':''}`;$('drawdown').textContent=money(s.max_drawdown);$('drawdown').classList.toggle('negative',s.max_drawdown>0);$('drawdownPct').textContent=`${number(s.max_drawdown_pct)}% do pico de performance`;$('averageOdds').textContent=number(s.average_odds);$('averageStake').textContent=money(s.average_stake);$('profitFactor').textContent=s.profit_factor===null?(s.gross_profit>0?'∞':'0,00'):number(s.profit_factor);$('streak').textContent=s.streak.count?`${s.streak.kind==='WIN'?'🔥 +':'🧊 -'}${s.streak.count}`:'Sem sequência';$('pendingCount').textContent=s.pending;$('generated').textContent=`Atualizado ${new Date(data.generated_at).toLocaleString('pt-BR')}`;renderChart();renderBreakdown();renderInsights(data.insights);renderPending(data.pending_bets);renderPeriodSummary(s);renderBets();}
+    setMoney("bankroll",g.current_bankroll); setMoney("profit",s.profit); setText("roi",fmtPct(s.roi)); setMoney("invested",s.invested); setText("concluded",s.concluded); setText("winRate",fmtPct(s.win_rate));
+    setText("profitTitle",state.period==="all"?"Lucro total consolidado":"Lucro da janela");
+    setText("profitFoot",state.period==="all"?`Inclui histórico importado; gráfico datado: ${fmtMoney(d.exact_period_summary.profit)}.`:"Somente resultados liquidados dentro da janela.");
+    setText("concludedFoot",state.period==="all"?`${d.exact_period_summary.concluded} com data exata; restante consolidado.`:"Resultados com data real de liquidação.");
+    applyDelta("profitDelta",deltaMarkup("profit",prev)); applyDelta("roiDelta",deltaMarkup("roi",prev,"pp")); applyDelta("investedDelta",deltaMarkup("invested",prev)); applyDelta("betsDelta",deltaMarkup("concluded",prev));
+    $("statusPills").innerHTML=`<span class="status-pill">✅ ${s.greens}</span><span class="status-pill">❌ ${s.reds}</span><span class="status-pill">⚪ ${s.voids}</span>`;
 
-    async function load(){activatePeriod();activateChart();$('loading').classList.remove('hidden');$('refresh').classList.add('loading-icon');try{const response=await fetch(`/api/dashboard/${TOKEN}?period=${encodeURIComponent(currentPeriod)}&v=5`,{cache:'no-store'}),payload=await response.json();if(!response.ok)throw new Error(payload.error||'Falha ao carregar o dashboard.');render(payload);}catch(error){document.querySelector('main').innerHTML=`<div class="error"><h2>Não foi possível carregar</h2><p>${escapeHtml(error.message)}</p><p>Volte ao Telegram e gere um novo link com <strong>/dashboard</strong>.</p></div>`;}finally{$('loading').classList.add('hidden');$('refresh').classList.remove('loading-icon');}}
-    document.querySelectorAll('.period-button').forEach(b=>b.addEventListener('click',()=>{currentPeriod=b.dataset.period;localStorage.setItem('bankroll-period',currentPeriod);load();}));document.querySelectorAll('[data-chart]').forEach(b=>b.addEventListener('click',()=>{chartMode=b.dataset.chart;localStorage.setItem('bankroll-chart-v5',chartMode);activateChart();if(DATA)renderChart();}));document.querySelectorAll('.breakdown-tab').forEach(b=>b.addEventListener('click',()=>{breakdownMode=b.dataset.breakdown;document.querySelectorAll('.breakdown-tab').forEach(i=>i.classList.toggle('active',i===b));renderBreakdown();}));$('refresh').addEventListener('click',load);$('search').addEventListener('input',renderBets);$('statusFilter').addEventListener('change',renderBets);window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(DATA)renderChart();},140);});activatePeriod();activateChart();load();
-  </script>
+    setMoney("chartTotal",d.chart.total_profit); setMoney("bestInterval",d.chart.best_interval); setMoney("worstInterval",d.chart.worst_interval); setMoney("cashflowNet",d.cashflow.net);
+    setText("chartSubtitle",`${d.period.label} • ${granularityLabel(d.chart.granularity)} • somente resultados com settled_at.`);
+
+    const exposure=Math.max(0,Number(g.open_exposure_pct||0)); $("exposureRing").style.setProperty("--pct",`${Math.min(100,exposure)}%`); setText("exposurePct",fmtPct(exposure)); setMoney("exposureValue",g.open_exposure); setText("pendingText",`${g.pending} aposta(s) pendente(s)`);
+    setMoney("drawdown",d.risk.max_drawdown); $("drawdownMeter").style.width=`${Math.min(100,Number(d.risk.max_drawdown)/(Math.max(1,Math.abs(Number(s.profit)))+Number(d.risk.max_drawdown))*100)}%`;
+    const streak=d.risk.streak||{kind:"NONE",count:0}; setText("streak",streak.kind==="WIN"?`${streak.count} green(s)`:streak.kind==="LOSS"?`${streak.count} red(s)`:"Sem sequência");
+    setText("profitFactor",`Fator de lucro: ${s.profit_factor==null?"—":brNum.format(s.profit_factor)}`); setText("avgOdds",`Odd média: ${brNum.format(s.average_odds)}`); setText("avgStake",`Stake média: ${fmtMoney(s.average_stake)}`);
+    setMoney("cashflowHealth",d.cashflow.net); setText("cashflowDetail",`Entradas ${fmtMoney(d.cashflow.inflow)} • Saídas ${fmtMoney(d.cashflow.outflow)}. Não entram no ROI.`);
+
+    setText("breakdownScope",state.period==="all"?"Todo o histórico detalhado; o resumo importado não possui categorias.":"Somente apostas liquidadas na janela selecionada.");
+    renderBreakdown(); renderInsights(); renderHistory(); renderPending(); renderAudit(); drawChart();
+  }
+
+  function granularityLabel(g){ return ({hour:"agregação por hora",day:"agregação por dia",week:"agregação por semana",month:"agregação por mês"})[g]||g; }
+
+  function renderBreakdown(){
+    const list=state.data.breakdowns[state.breakdown]||[], root=$("breakdownList");
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active",b.dataset.break===state.breakdown));
+    if(!list.length){ root.innerHTML='<div class="empty">Sem dados para esta categoria.</div>'; return; }
+    const max=Math.max(1,...list.map(x=>Math.abs(Number(x.profit||0))));
+    root.innerHTML=list.map(x=>{
+      const value=Number(x.profit||0), width=Math.max(2,Math.abs(value)/max*48);
+      return `<div class="break-row"><div class="break-label"><strong title="${escapeHtml(x.label)}">${escapeHtml(x.label)}</strong><small>${x.bets} aposta(s) • ${fmtMoney(x.invested)}</small></div><div class="diverging"><span class="${value>=0?"pos":"neg"}" style="width:${width}%"></span></div><div class="break-value"><strong class="${tone(value)}">${signedMoney(value)}</strong><small>ROI ${fmtPct(x.roi)}</small></div></div>`;
+    }).join("");
+  }
+
+  function renderInsights(){
+    const items=state.data.insights||[]; $("insights").innerHTML=items.map(x=>`<div class="insight ${escapeHtml(x.level)}"><strong>${escapeHtml(x.title)}</strong><p>${escapeHtml(x.text)}</p></div>`).join("") || '<div class="empty">Nenhum insight disponível.</div>';
+  }
+
+  function statusLabel(s){return ({GREEN:"Green",RED:"Red",VOID:"Void",HALF_GREEN:"Half green",HALF_RED:"Half red",PENDING:"Pendente"})[s]||s;}
+  function renderHistory(){
+    const query=$("search").value.trim().toLowerCase();
+    const rows=(state.data.recent_bets||[]).filter(x=>!query||[x.event,x.sport,x.market,x.tipster,x.bookmaker].join(" ").toLowerCase().includes(query));
+    $("historyBody").innerHTML=rows.map(x=>`<tr><td class="mono">${escapeHtml(x.date)}</td><td class="event-cell"><strong>${escapeHtml(x.event)}</strong><small>${escapeHtml(x.market)}</small></td><td>${escapeHtml(x.sport)}</td><td class="mono">${brNum.format(x.odds)}</td><td class="mono">${fmtMoney(x.stake)}</td><td><span class="status ${escapeHtml(x.status)}">${statusLabel(x.status)}</span></td><td class="mono ${tone(x.profit)}"><strong>${signedMoney(x.profit)}</strong></td><td><strong>${escapeHtml(x.bookmaker)}</strong><br><small class="muted">${escapeHtml(x.tipster)}</small></td></tr>`).join("");
+    $("historyEmpty").classList.toggle("hidden",rows.length>0); setText("historyScope",state.period==="all"?"Últimos registros do histórico consolidado.":"Resultados com data de liquidação dentro da janela selecionada.");
+  }
+  function renderPending(){
+    const rows=state.data.pending_bets||[]; $("pendingBody").innerHTML=rows.map(x=>`<tr><td class="mono">${escapeHtml(x.date)}</td><td class="event-cell"><strong>${escapeHtml(x.event)}</strong><small>${escapeHtml(x.market)}</small></td><td>${escapeHtml(x.sport)}</td><td class="mono">${brNum.format(x.odds)}</td><td class="mono">${fmtMoney(x.stake)}</td><td>${escapeHtml(x.bookmaker)}</td></tr>`).join(""); $("pendingEmpty").classList.toggle("hidden",rows.length>0);
+  }
+  function renderAudit(){
+    const q=state.data.quality; setText("auditExact",q.exact_dated); setText("auditLegacy",q.legacy_undated); setText("auditBase",q.base_bets); setText("auditCoverage",fmtPct(q.analytical_coverage_pct));
+    setText("auditNote",q.legacy_undated||q.base_bets?`Para manter os filtros corretos, ${q.legacy_undated} resultado(s) sem settled_at e ${q.base_bets} aposta(s) do resumo importado não são distribuídos artificialmente em 24h, 7d, 30d, 90d ou 1 ano.`:"Todos os resultados detalhados possuem data de liquidação confiável.");
+  }
+
+  const canvas=$("chart"), tooltip=$("tooltip"), wrap=$("chartWrap");
+  function niceStep(range){ const rough=range/5||1, power=Math.pow(10,Math.floor(Math.log10(rough))), fraction=rough/power; return (fraction<=1?1:fraction<=2?2:fraction<=5?5:10)*power; }
+  function drawChart(){
+    if(!state.data) return; const points=state.data.chart.points||[]; const rect=canvas.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1); canvas.width=Math.max(1,Math.round(rect.width*dpr)); canvas.height=Math.max(1,Math.round(rect.height*dpr)); const ctx=canvas.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+    const W=rect.width,H=rect.height,p={l:68,r:20,t:24,b:42},cw=W-p.l-p.r,ch=H-p.t-p.b; ctx.clearRect(0,0,W,H); if(!points.length){ctx.fillStyle="#667085";ctx.textAlign="center";ctx.fillText("Sem dados datados para este período",W/2,H/2);return;}
+    const values=points.map(x=>Number(state.mode==="line"?x.cumulative:x.profit)); let min=Math.min(0,...values),max=Math.max(0,...values); if(min===max){min-=1;max+=1;} const step=niceStep(max-min); min=Math.floor(min/step)*step;max=Math.ceil(max/step)*step; if(min===max)max=min+step;
+    const y=v=>p.t+(max-v)/(max-min)*ch, x=i=>p.l+(points.length===1?cw/2:(i/(points.length-1))*cw);
+    ctx.font="11px Inter,system-ui";ctx.strokeStyle="#e2eaee";ctx.fillStyle="#75869a";ctx.lineWidth=1;ctx.textAlign="right";ctx.textBaseline="middle";
+    for(let v=min;v<=max+step*.1;v+=step){const yy=y(v);ctx.beginPath();ctx.moveTo(p.l,yy);ctx.lineTo(W-p.r,yy);ctx.stroke();ctx.fillText(compactMoney(v),p.l-9,yy);}
+    const zero=y(0);ctx.strokeStyle="#b8c5cc";ctx.beginPath();ctx.moveTo(p.l,zero);ctx.lineTo(W-p.r,zero);ctx.stroke();
+    const labelEvery=Math.max(1,Math.ceil(points.length/7));ctx.textAlign="center";ctx.textBaseline="top";points.forEach((pt,i)=>{if(i%labelEvery===0||i===points.length-1)ctx.fillText(pt.label,x(i),H-p.b+10);});
+    if(state.mode==="bars"){
+      const slot=cw/Math.max(points.length,1),bw=Math.max(3,Math.min(28,slot*.62)); points.forEach((pt,i)=>{const val=Number(pt.profit),xx=points.length===1?p.l+cw/2:x(i),yy=y(val),top=Math.min(yy,zero),height=Math.max(1,Math.abs(zero-yy));ctx.fillStyle=val>=0?"#079447":"#d92d20";ctx.globalAlpha=i===state.hover?1:.86;roundedRect(ctx,xx-bw/2,top,bw,height,Math.min(4,bw/2));ctx.fill();ctx.globalAlpha=1;});
+    }else{
+      const final=values.at(-1)||0,color=final>=0?"#079447":"#d92d20";const grad=ctx.createLinearGradient(0,p.t,0,p.t+ch);grad.addColorStop(0,final>=0?"rgba(7,148,71,.24)":"rgba(217,45,32,.20)");grad.addColorStop(1,"rgba(255,255,255,0)");ctx.beginPath();points.forEach((pt,i)=>{const xx=x(i),yy=y(Number(pt.cumulative));i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);});ctx.lineTo(x(points.length-1),zero);ctx.lineTo(x(0),zero);ctx.closePath();ctx.fillStyle=grad;ctx.fill();ctx.beginPath();points.forEach((pt,i)=>{const xx=x(i),yy=y(Number(pt.cumulative));i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);});ctx.strokeStyle=color;ctx.lineWidth=3;ctx.lineJoin="round";ctx.stroke();points.forEach((pt,i)=>{if(i===state.hover||i===points.length-1){ctx.beginPath();ctx.arc(x(i),y(Number(pt.cumulative)),i===state.hover?5:4,0,Math.PI*2);ctx.fillStyle="#fff";ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();}});
+    }
+    if(state.hover>=0&&state.hover<points.length){const xx=x(state.hover);ctx.strokeStyle="rgba(21,112,239,.35)";ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(xx,p.t);ctx.lineTo(xx,p.t+ch);ctx.stroke();ctx.setLineDash([]);}
+    canvas._chart={points,x,p,W,H};
+  }
+  function compactMoney(v){const a=Math.abs(v),sign=v<0?"−":"";if(a>=1e6)return `${sign}R$ ${(a/1e6).toFixed(1).replace(".",",")} mi`;if(a>=1000)return `${sign}R$ ${(a/1000).toFixed(1).replace(".",",")} mil`;return `${sign}R$ ${Math.round(a)}`;}
+  function roundedRect(ctx,x,y,w,h,r){r=Math.min(r,Math.abs(w)/2,Math.abs(h)/2);ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,r):(ctx.rect(x,y,w,h));}
+  function hoverChart(event){const chart=canvas._chart;if(!chart)return;const rect=canvas.getBoundingClientRect(),mx=event.clientX-rect.left;let idx=0,min=Infinity;chart.points.forEach((_,i)=>{const dist=Math.abs(chart.x(i)-mx);if(dist<min){min=dist;idx=i;}});state.hover=idx;const pt=chart.points[idx];tooltip.innerHTML=`<strong>${escapeHtml(pt.label)}</strong><span>Resultado <b class="${tone(pt.profit)}">${signedMoney(pt.profit)}</b></span><span>Acumulado <b>${signedMoney(pt.cumulative)}</b></span><span>Investido <b>${fmtMoney(pt.invested)}</b></span><span>Apostas <b>${pt.bets}</b></span>`;tooltip.style.left=`${Math.max(95,Math.min(rect.width-95,event.clientX-rect.left))}px`;tooltip.style.top=`${Math.max(95,event.clientY-rect.top)}px`;tooltip.classList.add("show");drawChart();}
+  canvas.addEventListener("pointermove",hoverChart);canvas.addEventListener("pointerleave",()=>{state.hover=-1;tooltip.classList.remove("show");drawChart();});
+
+  document.querySelectorAll(".period-btn").forEach(b=>b.addEventListener("click",()=>{if(state.period===b.dataset.period)return;state.period=b.dataset.period;load();}));
+  document.querySelectorAll(".chart-mode").forEach(b=>b.addEventListener("click",()=>{state.mode=b.dataset.mode;document.querySelectorAll(".chart-mode").forEach(x=>x.classList.toggle("active",x===b));state.hover=-1;drawChart();}));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.addEventListener("click",()=>{state.breakdown=b.dataset.break;renderBreakdown();}));
+  $("refresh").addEventListener("click",load);$("search").addEventListener("input",renderHistory);window.addEventListener("resize",()=>requestAnimationFrame(drawChart));
+  if(window.Telegram?.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();}
+  load();
+})();
+</script>
 {% endif %}
 </body>
 </html>
