@@ -34,6 +34,22 @@ try:
         summary,
     )
     from .security import dashboard_url
+    from .dashboard_engine import dashboard_snapshot
+    from .bulk_import import (
+        add_historical_command,
+        add_multiple_command,
+        audit_database_command,
+        deduplicate_command,
+        import_single,
+        initialize_bulk_schema,
+        last_batch_command,
+        repair_dates_command,
+        repair_profits_command,
+        reset_base_summary_command,
+        undo_batch_command,
+        validate_multiple_command,
+        DuplicateBet,
+    )
 except ImportError:
     from config import HISTORY_LIMIT, TIMEZONE, bot_token
     from database import (
@@ -60,6 +76,22 @@ except ImportError:
         summary,
     )
     from security import dashboard_url
+    from dashboard_engine import dashboard_snapshot
+    from bulk_import import (
+        add_historical_command,
+        add_multiple_command,
+        audit_database_command,
+        deduplicate_command,
+        import_single,
+        initialize_bulk_schema,
+        last_batch_command,
+        repair_dates_command,
+        repair_profits_command,
+        reset_base_summary_command,
+        undo_batch_command,
+        validate_multiple_command,
+        DuplicateBet,
+    )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("telegram-bankroll-v3-lite")
@@ -102,39 +134,61 @@ def _settle_markup(bet_id: int) -> InlineKeyboardMarkup:
 
 
 def _summary_text(chat_id: int, period: str = "all") -> str:
-    data = summary(chat_id, period)
-    currency = data["currency"]
+    period_map = {"1": "24h", "24": "24h", "24h": "24h", "7": "7", "30": "30", "90": "90", "365": "365", "all": "all"}
+    selected = period_map.get(str(period).lower(), "all")
+    data = dashboard_snapshot(chat_id, selected, "result")
+    currency = data["profile"]["currency"]
+    current = data["summary"]
+    global_state = data["global"]
+    period_label = data["period"]["label"]
+    imported_note = ""
+    if selected == "all" and data["consolidated"]["imported_bets"]:
+        imported_note = (
+            f"\n📦 Histórico consolidado: {data['consolidated']['imported_bets']} aposta(s), "
+            f"{fmt_money(data['consolidated']['imported_profit'], currency)} de resultado"
+        )
     return (
-        "📊 RESUMO DA BANCA\n\n"
-        f"🏦 Saldo atual: {fmt_money(data['current_bankroll'], currency)}\n"
-        f"📈 Lucro líquido: {fmt_money(data['profit'], currency)}\n"
-        f"💵 Total investido: {fmt_money(data['invested'], currency)}\n"
-        f"📊 ROI: {fmt_num(data['roi'])}%\n"
-        f"🎯 Taxa de acerto: {fmt_num(data['win_rate'])}%\n"
-        f"✅ Apostas concluídas: {data['concluded']}\n"
-        f"⏳ Pendentes: {data['pending']}\n"
-        f"⚠️ Exposição aberta: {fmt_money(data['open_exposure'], currency)}"
+        f"📊 RESUMO — {period_label.upper()}\n\n"
+        f"🏦 Saldo atual: {fmt_money(global_state['current_bankroll'], currency)}\n"
+        f"📈 Lucro do período: {fmt_money(current['profit'], currency)}\n"
+        f"💵 Stake válida: {fmt_money(current['invested'], currency)}\n"
+        f"🔄 Volume total: {fmt_money(current['turnover'], currency)}\n"
+        f"📊 ROI: {fmt_num(current['roi'])}%\n"
+        f"🎯 Taxa de acerto: {fmt_num(current['win_rate'])}%\n"
+        f"✅ Concluídas: {current['concluded']} "
+        f"({current['greens']}G / {current['reds']}R / {current['voids']}V)\n"
+        f"⏳ Pendentes agora: {global_state['pending']}\n"
+        f"⚠️ Exposição aberta: {fmt_money(global_state['open_exposure'], currency)}"
+        f"{imported_note}"
     )
 
 
 def _help_text() -> str:
     return (
-        "📚 COMO USAR\n\n"
+        "📚 COMO USAR — GESTOR V9\n\n"
+        "PAINEL E RESUMOS\n"
         "• /dashboard — painel completo\n"
-        "• /resumo — resumo rápido\n"
+        "• /resumo — resumo geral\n"
+        "• /resumo24h, /resumo7d, /resumo30d, /resumo90d e /resumoano\n"
         "• /pendentes — liquidar com botões\n"
-        "• /historico 10 — últimas apostas\n"
-        "• /banca 1000 — definir banca inicial\n"
-        "• /setresumo 90 | 3413,93 | 109,60 — importar resumo antigo\n"
-        "• /deposito 100 | descrição\n"
-        "• /saque 50 | descrição\n"
+        "• /historico 10 — últimas apostas\n\n"
+        "CADASTRO\n"
+        "• /add Esporte | Evento | Mercado | Odd | Stake | Status | Tipster | Casa | Nota\n"
+        "• /addhistorico DATA_APOSTA | DATA_RESULTADO | Esporte | Evento | Mercado | Odd | Stake | Status | Tipster | Casa | ID | Nota\n"
+        "• /addmultipla — várias apostas em uma mensagem\n"
+        "• /validarmultipla — confere o lote sem salvar\n"
+        "• /ultimolote e /desfazerlote CODIGO\n\n"
+        "MANUTENÇÃO DA BASE\n"
+        "• /auditarbase — datas, lucros e duplicidades\n"
+        "• /corrigirdatas — prévia; use CONFIRMAR para aplicar\n"
+        "• /corrigirlucros — prévia; use CONFIRMAR para aplicar\n"
+        "• /deduplicar — prévia; use CONFIRMAR para aplicar\n"
+        "• /zerarbase — remove dupla contagem do /setresumo, com confirmação\n\n"
+        "BANCA\n"
+        "• /banca 1000 | /deposito 100 | nota | /saque 50 | nota\n"
+        "• /setresumo 90 | 3413,93 | 109,60\n"
         "• /exportar — baixar histórico CSV\n\n"
-        "NOVA APOSTA\n"
-        "/add Esporte | Evento | Mercado | Odd | Stake | Status\n\n"
-        "Com informações extras:\n"
-        "/add Esporte | Evento | Mercado | Odd | Stake | Status | Tipster | Casa | Nota\n\n"
-        "Status: GREEN, RED, VOID, HALF_GREEN, HALF_RED ou PENDING.\n"
-        "Para liberar um registro semelhante detectado como duplicado, inclua FORCAR na nota."
+        "Status: GREEN, RED, VOID, HALF_GREEN, HALF_RED ou PENDING."
     )
 
 
@@ -173,45 +227,31 @@ async def add_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     message = update.effective_message
     try:
         raw = message.text.split(maxsplit=1)[1].strip() if message.text and " " in message.text else ""
-        parts = [part.strip() for part in raw.split("|")]
-        if not 6 <= len(parts) <= 9:
+        if not raw:
             raise ValueError(
                 "Formato: /add Esporte | Evento | Mercado | Odd | Stake | Status | Tipster | Casa | Nota"
             )
-        sport, event, market = parts[0], parts[1], parts[2]
-        odds = parse_decimal(parts[3])
-        stake = money(parse_decimal(parts[4]))
-        status = normalize_status(parts[5])
-        tipster = bookmaker = notes = None
-        if len(parts) == 7:  # compatibilidade com o formato antigo
-            notes = parts[6] or None
-        elif len(parts) >= 8:
-            tipster = parts[6] or None
-            bookmaker = parts[7] or None
-            notes = parts[8] if len(parts) == 9 and parts[8] else None
-
-        duplicate = find_recent_duplicate(chat_id, event, market, odds, stake)
-        if duplicate and "FORCAR" not in (notes or "").upper():
-            await message.reply_text(
-                f"⚠️ Possível duplicidade com a aposta ID {duplicate['id']}.\n"
-                "Para registrar mesmo assim, coloque FORCAR no campo de nota."
-            )
-            return
-
-        warnings = risk_warnings(chat_id, stake) if status == "PENDING" else []
-        row = create_bet(chat_id, sport, event, market, odds, stake, status, tipster, bookmaker, notes)
+        bet, row = import_single(chat_id, raw, source="SINGLE")
         settings = get_settings(chat_id)
-        result = "Pendente" if status == "PENDING" else fmt_money(row["profit"], settings["currency"])
+        result = "Pendente" if bet.status == "PENDING" else fmt_money(row["profit"], settings["currency"])
         text = (
             f"✅ Aposta registrada — ID {row['id']}\n\n"
-            f"🏆 {sport}\n📌 {event}\n🎯 {market}\n"
-            f"🎲 Odd {fmt_num(odds)} | Stake {fmt_money(stake, settings['currency'])}\n"
-            f"📍 {status} | Resultado: {result}"
+            f"🏆 {bet.sport}\n📌 {bet.event}\n🎯 {bet.market}\n"
+            f"🎲 Odd {fmt_num(bet.odds)} | Stake {fmt_money(bet.stake, settings['currency'])}\n"
+            f"📍 {bet.status} | Resultado: {result}\n"
+            f"📅 Aposta: {bet.placed_at.astimezone(TIMEZONE).strftime('%d/%m/%Y %H:%M')}"
         )
+        if bet.result_at:
+            text += f"\n🏁 Resultado: {bet.result_at.astimezone(TIMEZONE).strftime('%d/%m/%Y %H:%M')}"
+        if bet.external_id:
+            text += f"\n🔖 ID externo: {bet.external_id}"
+        warnings = risk_warnings(chat_id, bet.stake) if bet.status == "PENDING" else []
         if warnings:
             text += "\n\n⚠️ ALERTA DE RISCO\n" + "\n".join(f"• {item}" for item in warnings)
-        markup = _settle_markup(int(row["id"])) if status == "PENDING" else _dashboard_markup(chat_id)
+        markup = _settle_markup(int(row["id"])) if bet.status == "PENDING" else _dashboard_markup(chat_id)
         await message.reply_text(text, reply_markup=markup)
+    except DuplicateBet as exc:
+        await message.reply_text(f"♻️ Aposta não inserida: {exc}")
     except (ValueError, IndexError) as exc:
         await message.reply_text(f"Não foi possível registrar:\n{exc}")
     except Exception:
@@ -409,6 +449,31 @@ async def resumomes_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     await update.effective_message.reply_text(_summary_text(chat_id, "30"), reply_markup=_dashboard_markup(chat_id))
 
 
+async def resumo24h_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id, _, _ = _profile(update)
+    await update.effective_message.reply_text(_summary_text(chat_id, "24h"), reply_markup=_dashboard_markup(chat_id))
+
+
+async def resumo7d_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id, _, _ = _profile(update)
+    await update.effective_message.reply_text(_summary_text(chat_id, "7"), reply_markup=_dashboard_markup(chat_id))
+
+
+async def resumo30d_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id, _, _ = _profile(update)
+    await update.effective_message.reply_text(_summary_text(chat_id, "30"), reply_markup=_dashboard_markup(chat_id))
+
+
+async def resumo90d_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id, _, _ = _profile(update)
+    await update.effective_message.reply_text(_summary_text(chat_id, "90"), reply_markup=_dashboard_markup(chat_id))
+
+
+async def resumoano_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id, _, _ = _profile(update)
+    await update.effective_message.reply_text(_summary_text(chat_id, "365"), reply_markup=_dashboard_markup(chat_id))
+
+
 async def resumos_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id, _, _ = _profile(update)
     await update.effective_message.reply_text(
@@ -483,6 +548,7 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
 def build_application(token: str | None = None) -> Application:
     init_db()
+    initialize_bulk_schema()
     application = (
         ApplicationBuilder()
         .token(bot_token(token))
@@ -498,12 +564,28 @@ def build_application(token: str | None = None) -> Application:
         "resumo": resumo_command,
         "help": help_command,
         "add": add_command,
+        "addmultipla": add_multiple_command,
+        "addmulti": add_multiple_command,
+        "validarmultipla": validate_multiple_command,
+        "addhistorico": add_historical_command,
+        "auditarbase": audit_database_command,
+        "corrigirdatas": repair_dates_command,
+        "corrigirlucros": repair_profits_command,
+        "deduplicar": deduplicate_command,
+        "zerarbase": reset_base_summary_command,
+        "ultimolote": last_batch_command,
+        "desfazerlote": undo_batch_command,
         "pendentes": pending_command,
         "historico": history_command,
         "banca": banca_command,
         "setresumo": setresumo_command,
         "resumodia": resumodia_command,
         "resumomes": resumomes_command,
+        "resumo24h": resumo24h_command,
+        "resumo7d": resumo7d_command,
+        "resumo30d": resumo30d_command,
+        "resumo90d": resumo90d_command,
+        "resumoano": resumoano_command,
         "resumos": resumos_command,
         "deposito": deposito_command,
         "saque": saque_command,
